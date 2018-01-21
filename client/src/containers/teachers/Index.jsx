@@ -15,10 +15,16 @@ class TeachersIndex extends Component {
         });
     }
 
-    checkoutMenu = ({ item, key, selectedKeys }) => {
-        console.log(item)
-        console.log(key)
-        console.log(selectedKeys)
+    checkoutMenu = ({ key }) => {
+        // 清除所有cookie
+        if(key === '5') {
+            let keys = document.cookie.match(/[^ =;]+(?==)/g);  
+            if(keys) {  
+                for(let i = keys.length; i--;)  
+                    document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
+            }  
+            window.location.reload();
+        }
     }
 
   	render() {
@@ -46,6 +52,10 @@ class TeachersIndex extends Component {
                         <Menu.Item key="4">
                             <Icon type="switcher" />
                             <span>发布成绩</span>
+                        </Menu.Item>
+                        <Menu.Item key="5">
+                            <Icon type="logout" />
+                            <span>退出登录</span>
                         </Menu.Item>
                     </Menu>
                 </Sider>
