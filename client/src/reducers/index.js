@@ -20,10 +20,8 @@ export default function (state, action) {
     }
     switch (action.type) {
         case LOGIN_SUCC:
-            message.success(action.msg);
             return { ...state, isLogined: true, identity: action.identity }
         case LOGIN_FAILE:
-            message.error(action.msg);
             return { ...state, isLogined: false, identity: action.identity }
         default:
             return state
@@ -31,15 +29,15 @@ export default function (state, action) {
 }
 
 // action creators
-function loginSucc(identity, msg) {
-    return { type: LOGIN_SUCC, identity, msg }
+function loginSucc(identity) {
+    return { type: LOGIN_SUCC, identity }
 }
 
-function loginFaile(identity, msg) {
-    return { type: LOGIN_FAILE, identity, msg }
+function loginFaile(identity) {
+    return { type: LOGIN_FAILE, identity }
 }
 
-function postLoginInfo(identity, userName, password) {
+function postLoginInfo(identity, userName, password, isLoginWithCookie) {
     return function (dispatch) {
         return $.ajax({
             url:`${SERVER_PATH}/login`,
@@ -53,17 +51,27 @@ function postLoginInfo(identity, userName, password) {
             success: function (response) {
                 let msg = response.msg;
                 if(response.code === status.LOGIN_SUCC) {
-                    dispatch(loginSucc(identity, msg))
+                    let exp = new Date();
+                    exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
+                    document.cookie = "identity=" + identity + ";expires=" + exp.toGMTString();
+                    document.cookie = "un=" + userName + ";expires=" + exp.toGMTString();
+                    document.cookie = "pw=" + password + ";expires=" + exp.toGMTString();
+
+                    if(!isLoginWithCookie) {
+                        message.success(msg); 
+                    }
+                    dispatch(loginSucc(identity))
                 } else if(response.code === status.LOGIN_FAILE) {
-                    dispatch(loginFaile(identity, msg))
+                    message.error(msg);
+                    dispatch(loginFaile(identity))
                 }
             }
         });
     }
 }
 
-export const login = (identity, userName, password) => {
+export const login = (identity, userName, password, isLoginWithCookie) => {
     return (dispatch, getState) => {
-        return dispatch(postLoginInfo(identity, userName, password))
+        return dispatch(postLoginInfo(identity, userName, password, isLoginWithCookie))
     }
 }

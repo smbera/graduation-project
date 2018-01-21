@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { Form, Icon, Input, Button, Tabs } from 'antd';
 import { connect } from 'react-redux'
+import md5 from 'md5';
 import { login } from '../reducers/index'
 
 class Login extends Component {
@@ -17,7 +18,7 @@ class Login extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 if (this.props.onLogin){
-                    this.props.onLogin(this.state.identity, values.userName, values.password)
+                    this.props.onLogin(this.state.identity, values.userName, md5(values.password), false)
                 }
             }
         });
@@ -60,6 +61,19 @@ class Login extends Component {
             </div>
         );
 	}
+
+    componentWillMount() {
+        let identityReg = new RegExp("(^| )identity=([^;]*)(;|$)"),
+            userNameReg = new RegExp("(^| )un=([^;]*)(;|$)"),
+            passwordReg = new RegExp("(^| )pw=([^;]*)(;|$)");
+
+        if (document.cookie.match(identityReg) && document.cookie.match(userNameReg) && document.cookie.match(passwordReg)) {
+            if (this.props.onLogin){
+                this.props.onLogin(document.cookie.match(identityReg)[2], document.cookie.match(userNameReg)[2], document.cookie.match(passwordReg)[2], true)
+            }
+        }
+        
+    }
 }
 
 const WrappedLogin = Form.create()(Login);
@@ -76,8 +90,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onLogin: (identity, userName, password) => {
-            dispatch(login(identity, userName, password))
+        onLogin: (identity, userName, password, isLoginWithCookie) => {
+            dispatch(login(identity, userName, password, isLoginWithCookie))
         }
     }
 }
