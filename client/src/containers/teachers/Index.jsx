@@ -17,7 +17,7 @@ class TeachersIndex extends Component {
 
     checkoutMenu = ({ key }) => {
         // 清除所有cookie
-        if(key === '5') {
+        if(key === '7') {
             let keys = document.cookie.match(/[^ =;]+(?==)/g);  
             if(keys) {  
                 for(let i = keys.length; i--;)  
@@ -43,17 +43,25 @@ class TeachersIndex extends Component {
                         </Menu.Item>
                         <Menu.Item key="2">
                             <Icon type="bar-chart" />
-                            <span>发布课程</span>
+                            <span>个人信息</span>
                         </Menu.Item>
                         <Menu.Item key="3">
+                            <Icon type="book" />
+                            <span>发布课程</span>
+                        </Menu.Item>
+                        <Menu.Item key="4">
                             <Icon type="export" />
                             <span>发布考试信息</span>
                         </Menu.Item>
-                        <Menu.Item key="4">
+                        <Menu.Item key="5">
                             <Icon type="switcher" />
                             <span>发布成绩</span>
                         </Menu.Item>
-                        <Menu.Item key="5">
+                        <Menu.Item key="6">
+                            <Icon type="line-chart" />
+                            <span>查看教学质量评价</span>
+                        </Menu.Item>
+                        <Menu.Item key="7">
                             <Icon type="logout" />
                             <span>退出登录</span>
                         </Menu.Item>
