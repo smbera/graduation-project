@@ -16,3 +16,21 @@
 	width: 150px;
 	text-align: center;
 }
+
+.anticon-menu-fold, .anticon-menu-unfold {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color .3s;
+}
+
+.anticon-menu-fold:hover, .anticon-menu-unfold:hover {
+  color: #1890ff;
+}
+
+.ant-layout-sider-children .logo {
+  height: 32px;
+  background: rgba(255,255,255,.2);
+  margin: 16px;
+}
