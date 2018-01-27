@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
+import ChangePassword from './ChangePassword'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
@@ -7,6 +8,7 @@ const { Header, Content, Sider } = Layout;
 class TeachersIndex extends Component {
     state = {
         collapsed: false,
+        key: '1'
     };
 
     toggle = () => {
@@ -16,6 +18,10 @@ class TeachersIndex extends Component {
     }
 
     checkoutMenu = ({ key }) => {
+        this.setState({
+            key: key
+        })
+
         // 清除所有cookie
         if(key === '7') {
             let keys = document.cookie.match(/[^ =;]+(?==)/g);  
@@ -28,13 +34,19 @@ class TeachersIndex extends Component {
     }
 
   	render() {
+        let selectMenu = () => {
+            if(this.state.key === '1') {
+                return <ChangePassword />
+            }
+        }
+
     	return (
             <Layout>
                 <Sider
                   trigger={null}
                   collapsible
                   collapsed={this.state.collapsed}
-                >
+                    >
                     <div className="logo" />
                     <Menu theme="dark" mode="inline" onClick={this.checkoutMenu} defaultSelectedKeys={['1']}>
                         <Menu.Item key="1">
@@ -76,7 +88,9 @@ class TeachersIndex extends Component {
                         />
                     </Header>
                     <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                        Content
+                        {
+                             selectMenu()   
+                        }
                     </Content>
                 </Layout>
             </Layout>
