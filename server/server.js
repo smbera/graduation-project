@@ -1,11 +1,19 @@
 var express = require('express');
+var path = require('path');
+var bodyParser = require('body-parser');
+
+var routes = require('./routes');
+
 var app = express();
-var mongoose = require("mongoose");
-var routes = require('./routes/index.js');
 
-mongoose.connect("mongodb://127.0.0.1:27017/graduation-project");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+//加载主外键关系及创建数据库
+require('./models/ref');
+
+routes(app);
 
 var server = app.listen(3001, function () {
   var host = server.address().address;
