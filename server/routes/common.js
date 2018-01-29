@@ -1,3 +1,6 @@
+var code = require("../status/code.js");
+var msg = require("../status/msg.js");
+
 var common = {
 	signIn(req, res, next, obj) {
 		obj.findOne({
@@ -8,13 +11,13 @@ var common = {
 	    }).then(function(result) {
 	    	if(result == null) {
 	            res.json({
-	                code: 001,
-	                msg: '登录失败，用户名或密码错误'
+	                code: code.LOGIN_FAILE,
+	                msg: msg.LOGIN_FAILE
 	            })
 	        } else {
 	        	res.json({
-	                code: 001,
-	                msg: '登录成功'
+	                code: code.LOGIN_SUCC,
+	                msg: msg.LOGIN_SUCC
 	            })
 	        }
 	    }).catch(next);

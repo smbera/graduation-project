@@ -4,15 +4,18 @@ import { connect } from 'react-redux'
 import Login from './Login'
 import StudentsIndex from './students/Index'
 import TeachersIndex from './teachers/Index'
+import AdminsIndex from './admins/Index'
 
 class Index extends Component {
   	render() {
         if(this.props.isLogined === false) {
-           return <Login />
+            return <Login />
         } else if(this.props.isLogined === true && this.props.identity === '1') {
-           return <StudentsIndex />
+            return <StudentsIndex />
         } else if(this.props.isLogined === true && this.props.identity === '2') {
-           return <TeachersIndex />
+            return <TeachersIndex />
+        } else if(this.props.isLogined === true && this.props.identity === '3') {
+            return <AdminsIndex />
         }
 	}
 }

@@ -39,6 +39,7 @@ class Login extends Component {
                     <Tabs defaultActiveKey={this.state.identity} onChange={this.selectIdentity}>
                         <Tabs.TabPane tab="学生登录" key="1"></Tabs.TabPane>
                         <Tabs.TabPane tab="教师登录" key="2"></Tabs.TabPane>
+                        <Tabs.TabPane tab="管理员登录" key="3"></Tabs.TabPane> 
                     </Tabs>
                     <Form.Item>
                         {getFieldDecorator('userName', {
@@ -72,7 +73,6 @@ class Login extends Component {
                 this.props.onLogin(document.cookie.match(identityReg)[2], document.cookie.match(userNameReg)[2], document.cookie.match(passwordReg)[2], true)
             }
         }
-        
     }
 }
 

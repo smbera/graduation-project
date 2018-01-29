@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
 
-class StudentsIndex extends Component {
+class AdminsIndex extends Component {
     state = {
         collapsed: false,
     };
@@ -80,7 +80,7 @@ class StudentsIndex extends Component {
                         />
                     </Header>
                     <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                        Content
+                        adminContent
                     </Content>
                 </Layout>
             </Layout>
@@ -88,7 +88,7 @@ class StudentsIndex extends Component {
     }
 }
 
-StudentsIndex.propTypes = { 
+AdminsIndex.propTypes = { 
     languageType: PropTypes.string,
 } 
 
@@ -107,4 +107,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(StudentsIndex)
+)(AdminsIndex)
