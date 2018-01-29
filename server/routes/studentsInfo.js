@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var { sequelize, Sequelize } = require("../config/db");
+var common = require("./common.js");
 
 var adminsInfo = sequelize.import("../models/adminsInfo");
 var studentsInfo = sequelize.import("../models/studentsInfo");
@@ -241,7 +242,7 @@ router.get("/getExamsInfo", function(req, res, next) {
                     })
 
                     coursesInfo.findAll({
-		                attributes: ['name', 'examTime', 'examAddress'],
+		                attributes: ['id', 'name', 'examTime', 'examAddress'],
 		                where: {
 		                    id: {
                                 [Sequelize.Op.in]: tempArr
@@ -271,58 +272,11 @@ router.get("/getExamsInfo", function(req, res, next) {
 });
 
 router.post("/signIn", function(req, res, next) {
-	studentsInfo.findOne({
-        where: {
-            id: req.body.studentId,
-            password: req.body.studentPsw
-        }
-    }).then(function(result) {
-    	if(result == null) {
-            res.json({
-                code: 001,
-                msg: '登录失败，用户名或密码错误'
-            })
-        } else {
-        	res.json({
-                code: 001,
-                msg: '登录成功'
-            })
-        }
-    }).catch(next);
+    common.signIn(req, res, next, studentsInfo)
 });
 
 router.post("/updateInfo", function(req, res, next) {
-	studentsInfo.findOne({
-        where: {
-            id: req.body.studentId,
-            password: req.body.studentPsw
-        }
-    }).then(function(result) {
-    	if(result == null) {
-            res.json({
-                code: 001,
-                msg: '用户名或密码错误，无权限更新信息，请重新登录后再操作'
-            })
-        } else {
-        	studentsInfo.update(req.body, {
-                where: {
-                    id: req.body.studentId
-                }
-            }).then(function(result) {
-                if(result[0] == 0) {
-                    res.json({
-                        status: 1,
-                        msg: '更新用户失败'
-                    })
-                } else {
-                    res.json({
-                        status: 1,
-                        msg: '更新用户成功'
-                    })
-                }
-            })
-        }
-    }).catch(next);
+    common.updateInfo(req, res, next, studentsInfo)
 });
 
 module.exports = router;
