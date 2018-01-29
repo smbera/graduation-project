@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true, 
             primaryKey: true 
         },
-        grade: {
+        score: {
             type: DataTypes.INTEGER
         },
         isOpen: {
