@@ -279,4 +279,39 @@ router.post("/updateInfo", function(req, res, next) {
     common.updateInfo(req, res, next, studentsInfo)
 });
 
+router.post("/addTeachersAssessment", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.body.studentId,
+            password: req.body.studentPsw
+        }
+    }).then(function(result) {
+    	if(result == null) {
+            res.json({
+                code: 001,
+                msg: '用户名或密码错误，无权限评教，请重新登录后再操作'
+            })
+        } else {
+        	studentsTeachers.update(req.body, {
+                where: {
+                    students_info_id: req.body.studentId,
+                    teachers_info_id: req.body.teacherId
+                }
+            }).then(function(result) {
+                if(result[0] == 0) {
+                    res.json({
+                        status: 1,
+                        msg: '评教失败'
+                    })
+                } else {
+                    res.json({
+                        status: 1,
+                        msg: '评教成功'
+                    })
+                }
+            })
+        }
+    }).catch(next);
+});
+
 module.exports = router;
