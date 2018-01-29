@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var { sequelize, Sequelize } = require("../config/db");
+var common = require("./common.js");
 
 var adminsInfo = sequelize.import("../models/adminsInfo");
 var studentsInfo = sequelize.import("../models/studentsInfo");
@@ -194,6 +195,14 @@ router.post("/openCoursesSelect", function(req, res, next) {
 
 router.post("/openTeachersAssessment", function(req, res, next) {
     open(req, res, next, studentsTeachers)
+});
+
+router.post("/signIn", function(req, res, next) {
+    common.signIn(req, res, next, adminsInfo)
+});
+
+router.post("/updateInfo", function(req, res, next) {
+    common.updateInfo(req, res, next, adminsInfo)
 });
 
 module.exports = router;
