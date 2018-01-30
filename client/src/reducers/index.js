@@ -9,29 +9,6 @@ const STUDENTS_INFO = 'studentsInfo';
 const TEACHERS_INFO = 'teachersInfo';
 const ADMINS_INFO = 'adminsInfo';
 
-// action types
-const LOGIN_SUCC = 'LOGIN_SUCC';
-const LOGIN_FAILE = 'LOGIN_FAILE';
-
-// reducer
-export default function (state, action) {
-    if (!state) {
-        return {
-            isLogined: false,
-            identity: '1', // 学生为1，教师为2, 管理员为3
-        }
-    }
-    switch (action.type) {
-        case LOGIN_SUCC:
-            return { ...state, isLogined: true, identity: action.identity }
-        case LOGIN_FAILE:
-            return { ...state, isLogined: false, identity: action.identity }
-        default:
-            return state
-    }
-}
-
-// action creators
 function ajaxSignIn(identityType, identity, userName, password, isLoginWithCookie, dispatch) {
     $.ajax({
         url:`${SERVER_PATH}/${identityType}/signIn`,
@@ -62,6 +39,74 @@ function ajaxSignIn(identityType, identity, userName, password, isLoginWithCooki
     });
 }
 
+function getUserInfoFromCookie() {
+    let identityReg = new RegExp("(^| )identity=([^;]*)(;|$)"),
+        userNameReg = new RegExp("(^| )un=([^;]*)(;|$)"),
+        passwordReg = new RegExp("(^| )pw=([^;]*)(;|$)");
+
+    if (document.cookie.match(identityReg) && document.cookie.match(userNameReg) && document.cookie.match(passwordReg)) {
+        return {
+            identity: document.cookie.match(identityReg)[2],
+            userName: document.cookie.match(userNameReg)[2],
+            password: document.cookie.match(passwordReg)[2]
+        }
+    } else {
+        message.error('登录时间已失效，3秒将跳转到登录页面，请重新登录');
+        setTimeout(function(){
+            window.location.reload();
+        },3000)
+    }
+}
+
+function ajaxChangePassword(identityType, userInfo, originalPassword, confirmPassword, dispatch) {
+    $.ajax({
+        url:`${SERVER_PATH}/${identityType}/updateInfo`,
+        type: 'post',
+        data: { 
+            'id': userInfo.userName,
+            'psw': originalPassword,
+            'password': confirmPassword
+        },
+        async: false,
+        success: function (response) {
+            let msg = response.msg;
+            if(response.code === status.NO_ACCESS_UPDATE_INFO || response.code === status.UPDATE_INFO_FAILE) {
+                message.error(msg);
+            } else if(response.code === status.UPDATE_INFO_SUCC) {
+                message.success(msg); 
+                let exp = new Date();
+                exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
+                document.cookie = "identity=" + userInfo.identity + ";expires=" + exp.toGMTString();
+                document.cookie = "un=" + userInfo.userName + ";expires=" + exp.toGMTString();
+                document.cookie = "pw=" + confirmPassword + ";expires=" + exp.toGMTString();
+            }
+        }
+    });
+}
+
+// action types
+const LOGIN_SUCC = 'LOGIN_SUCC';
+const LOGIN_FAILE = 'LOGIN_FAILE';
+
+// reducer
+export default function (state, action) {
+    if (!state) {
+        return {
+            isLogined: false,
+            identity: '1', // 学生为1，教师为2, 管理员为3
+        }
+    }
+    switch (action.type) {
+        case LOGIN_SUCC:
+            return { ...state, isLogined: true, identity: action.identity }
+        case LOGIN_FAILE:
+            return { ...state, isLogined: false, identity: action.identity }
+        default:
+            return state
+    }
+}
+
+// action creators
 function loginSucc(identity) {
     return { type: LOGIN_SUCC, identity }
 }
@@ -85,5 +130,24 @@ function postLoginInfo(identity, userName, password, isLoginWithCookie) {
 export const login = (identity, userName, password, isLoginWithCookie) => {
     return (dispatch, getState) => {
         return dispatch(postLoginInfo(identity, userName, password, isLoginWithCookie))
+    }
+}
+
+function postPassword(originalPassword, confirmPassword) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        if(userInfo.identity === '1') {
+            return ajaxChangePassword(STUDENTS_INFO, userInfo, originalPassword, confirmPassword, dispatch)
+        } else if(userInfo.identity === '2') {
+            return ajaxChangePassword(TEACHERS_INFO, userInfo, originalPassword, confirmPassword, dispatch)
+        } else if(userInfo.identity === '3') {
+            return ajaxChangePassword(ADMINS_INFO, userInfo, originalPassword, confirmPassword, dispatch)
+        }
+    }
+}
+
+export const changePassword = (originalPassword, confirmPassword) => {
+    return (dispatch, getState) => {
+        return dispatch(postPassword(originalPassword, confirmPassword))
     }
 }

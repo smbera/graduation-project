@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
+import ChangePassword from '../component/ChangePassword'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
@@ -7,6 +8,7 @@ const { Header, Content, Sider } = Layout;
 class StudentsIndex extends Component {
     state = {
         collapsed: false,
+        key: '1'
     };
 
     toggle = () => {
@@ -16,6 +18,10 @@ class StudentsIndex extends Component {
     }
 
     checkoutMenu = ({ key }) => {
+        this.setState({
+            key: key
+        })
+
         // 清除所有cookie
         if(key === '8') {
             let keys = document.cookie.match(/[^ =;]+(?==)/g);  
@@ -28,6 +34,12 @@ class StudentsIndex extends Component {
     }
 
     render() {
+        let selectMenu = () => {
+            if(this.state.key === '1') {
+                return <ChangePassword />
+            }
+        }
+
         return (
             <Layout>
                 <Sider
@@ -80,7 +92,9 @@ class StudentsIndex extends Component {
                         />
                     </Header>
                     <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                        Content
+                        {
+                             selectMenu()   
+                        }
                     </Content>
                 </Layout>
             </Layout>

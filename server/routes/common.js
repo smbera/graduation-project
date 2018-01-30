@@ -31,8 +31,8 @@ var common = {
 	    }).then(function(result) {
 	    	if(result == null) {
 	            res.json({
-	                code: 001,
-	                msg: '用户名或密码错误，无权限更新信息，请重新登录后再操作'
+	                code: code.NO_ACCESS_UPDATE_INFO,
+	                msg: msg.NO_ACCESS_UPDATE_INFO
 	            })
 	        } else {
 	        	obj.update(req.body, {
@@ -42,13 +42,13 @@ var common = {
 	            }).then(function(result) {
 	                if(result[0] == 0) {
 	                    res.json({
-	                        status: 1,
-	                        msg: '更新用户失败'
+	                        code: code.UPDATE_INFO_FAILE,
+	                		msg: msg.UPDATE_INFO_FAILE
 	                    })
 	                } else {
 	                    res.json({
-	                        status: 1,
-	                        msg: '更新用户成功'
+	                        code: code.UPDATE_INFO_SUCC,
+	                		msg: msg.UPDATE_INFO_SUCC
 	                    })
 	                }
 	            })

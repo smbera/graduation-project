@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import ChangePassword from './ChangePassword'
+import ChangePassword from '../component/ChangePassword'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
