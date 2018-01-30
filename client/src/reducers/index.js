@@ -151,3 +151,42 @@ export const changePassword = (originalPassword, confirmPassword) => {
         return dispatch(postPassword(originalPassword, confirmPassword))
     }
 }
+
+function postStudentsInfo(obj) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        $.ajax({
+            url:`${SERVER_PATH}/${ADMINS_INFO}/addStudentsInfo`,
+            type: 'post',
+            data: {
+                'adminId': userInfo.userName,
+                'adminPsw': userInfo.password,
+                'id': obj.id,
+                'password': obj.password,
+                'name': obj.name,
+                'gender': obj.gender,
+                'tel': obj.tel,
+                'grade': obj.grade,
+                'class': obj.classes,
+                'majorId': obj.majorId,
+                'majorName': obj.majorName,
+                'admins_info_id': userInfo.userName
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_ACCESS_ADD_USER || response.code === status.ADD_USER_FAILE) {
+                    message.error(msg);
+                } else if(response.code === status.ADD_USER_SUCC) {
+                    message.success(msg); 
+                }
+            }
+        });
+    }
+}
+
+export const addStudentsInfo = (obj) => {
+    return (dispatch, getState) => {
+        return dispatch(postStudentsInfo(obj))
+    }
+}

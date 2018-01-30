@@ -3,6 +3,8 @@ var router = express.Router();
 
 var { sequelize, Sequelize } = require("../config/db");
 var common = require("./common.js");
+var code = require("../status/code.js");
+var msg = require("../status/msg.js");
 
 var adminsInfo = sequelize.import("../models/adminsInfo");
 var studentsInfo = sequelize.import("../models/studentsInfo");
@@ -19,20 +21,20 @@ function addInfo(req, res, next, obj) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '无权限增加用户'
+                code: code.NO_ACCESS_ADD_USER,
+                msg: msg.NO_ACCESS_ADD_USER
             })
         } else {
             obj.create(req.body).then(function(result) {
                 if(result == null) {
                     res.json({
-                        status: 1,
-                        msg: '增加用户失败'
+                        code: code.ADD_USER_FAILE,
+                        msg: msg.ADD_USER_FAILE
                     })
                 } else {
                     res.json({
-                        status: 1,
-                        msg: '增加用户成功'
+                        code: code.ADD_USER_SUCC,
+                        msg: msg.ADD_USER_SUCC
                     })
                 }
             })
