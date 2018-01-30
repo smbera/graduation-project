@@ -42,6 +42,43 @@ function addInfo(req, res, next, obj) {
     }).catch(next);
 }
 
+
+function getInfo(req, res, next, obj) {
+    adminsInfo.findOne({
+        where: {
+            id: req.query.adminId,
+            password: req.query.adminPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.NO_ACCESS_GET_USER,
+                msg: msg.NO_ACCESS_GET_USER
+            })
+        } else {
+            obj.findAll({
+                attributes: { exclude: ['admins_info_id'] },
+                where: {
+                    admins_info_id: req.query.adminId
+                }
+            }).then(function(result) {
+                if(result.length == 0) {
+                    res.json({
+                        code: code.GET_USER_FAILE,
+                        msg: msg.GET_USER_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.GET_USER_SUCC,
+                        msg: msg.GET_USER_SUCC,
+                        data: result
+                    })
+                }
+            })
+        }
+    }).catch(next);
+}
+
 function updateInfo(req, res, next, obj) {
     adminsInfo.findOne({
         where: {
@@ -205,6 +242,14 @@ router.post("/signIn", function(req, res, next) {
 
 router.post("/updateInfo", function(req, res, next) {
     common.updateInfo(req, res, next, adminsInfo)
+});
+
+router.get("/getStudentsInfo", function(req, res, next) {
+    getInfo(req, res, next, studentsInfo)
+});
+
+router.get("/getTeachersInfo", function(req, res, next) {
+    getInfo(req, res, next, teachersInfo)
 });
 
 module.exports = router;
