@@ -87,6 +87,9 @@ function ajaxChangePassword(identityType, userInfo, originalPassword, confirmPas
 // action types
 const LOGIN_SUCC = 'LOGIN_SUCC';
 const LOGIN_FAILE = 'LOGIN_FAILE';
+const ADD_STUDENTS_INFO_SUCC = 'ADD_STUDENTS_INFO_SUCC';
+const ADMIN_GET_STUDENTS_INFO = 'ADMIN_GET_STUDENTS_INFO';
+const ADMIN_GET_TEACHERS_INFO = 'ADMIN_GET_TEACHERS_INFO';
 
 // reducer
 export default function (state, action) {
@@ -94,6 +97,8 @@ export default function (state, action) {
         return {
             isLogined: false,
             identity: '1', // 学生为1，教师为2, 管理员为3
+            adminGetStudentsInfo: [],
+            adminGetTeachersInfo: [],
         }
     }
     switch (action.type) {
@@ -101,6 +106,15 @@ export default function (state, action) {
             return { ...state, isLogined: true, identity: action.identity }
         case LOGIN_FAILE:
             return { ...state, isLogined: false, identity: action.identity }
+        case ADD_STUDENTS_INFO_SUCC:
+            let newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
+            newAdminGetStudentsInfo.unshift(action.newStudentInfo)
+            
+            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo }
+        case ADMIN_GET_STUDENTS_INFO:
+            return { ...state, adminGetStudentsInfo: action.data }
+        case ADMIN_GET_TEACHERS_INFO:
+            return { ...state, adminGetTeachersInfo: action.data }
         default:
             return state
     }
@@ -152,6 +166,10 @@ export const changePassword = (originalPassword, confirmPassword) => {
     }
 }
 
+function addStudentsInfoSucc(newStudentInfo) {
+    return { type: ADD_STUDENTS_INFO_SUCC, newStudentInfo }
+}
+
 function postStudentsInfo(obj) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -179,6 +197,7 @@ function postStudentsInfo(obj) {
                     message.error(msg);
                 } else if(response.code === status.ADD_USER_SUCC) {
                     message.success(msg); 
+                    dispatch(addStudentsInfoSucc(response.data))
                 }
             }
         });
@@ -190,3 +209,47 @@ export const addStudentsInfo = (obj) => {
         return dispatch(postStudentsInfo(obj))
     }
 }
+
+function adminGetStudentsInfoSucc(data) {
+    return { type: ADMIN_GET_STUDENTS_INFO, data }
+}
+
+function adminGetTeachersInfoSucc(data) {
+    return { type: ADMIN_GET_TEACHERS_INFO, data }
+}
+
+function getAdminGetUsersInfo(identityType) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        let path = identityType === 'student' ? 'getStudentsInfo' : 'getTeachersInfo'
+        $.ajax({
+            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
+            type: 'get',
+            data: {
+                'adminId': userInfo.userName,
+                'adminPsw': userInfo.password
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_ACCESS_GET_USER || response.code === status.GET_USER_FAILE) {
+                    message.error(msg);
+                } else if(response.code === status.GET_USER_SUCC) {
+                    message.success(msg); 
+                    if(identityType === 'student') {
+                        dispatch(adminGetStudentsInfoSucc(response.data))
+                    } else if(identityType === 'teacher') {
+                        dispatch(adminGetTeachersInfoSucc(response.data))
+                    }
+                }
+            }
+        });
+    }
+}
+
+export const adminGetUsersInfo = (identityType) => {
+    return (dispatch, getState) => {
+        return dispatch(getAdminGetUsersInfo(identityType))
+    }
+}
+

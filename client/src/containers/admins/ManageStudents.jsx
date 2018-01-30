@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { Form, Input, Button, Select } from 'antd';
-import { addStudentsInfo } from '../../reducers/index'
+import { addStudentsInfo, adminGetUsersInfo } from '../../reducers/index'
 import md5 from 'md5';
 
 const Option = Select.Option;
@@ -91,50 +91,63 @@ class ManageStudents extends Component {
     render() {
         return (
             <div className='manage-students-wrap'>
-                <Input placeholder="请输入学号" style={{ width: 150 } } onChange={e => this.handleChangeId(e.target.value)}/>
-                <Input placeholder="请输入密码" style={{ width: 150 }} onChange={e => this.handleChangePsw(e.target.value)}/>
-                <Input placeholder="请输入姓名" style={{ width: 150 }} onChange={e => this.handleChangeName(e.target.value)}/>
-                <Select defaultValue={this.state.gender} style={{ width: 60 }} onChange={this.handleChangeGender}>
-                    <Option value="男">男</Option>
-                    <Option value="女">女</Option>
-                </Select>
-                <Input placeholder="请输入联系方式" style={{ width: 150 }} onChange={e => this.handleChangeTel(e.target.value)}/>
-                <Select defaultValue={this.state.grade} style={{ width: 90 }} onChange={this.handleChangeGrade}>
-                    {
-                        grade.map((item, index) => {
-                            return (<Option value={item} key={index}>{item}级</Option>)
-                        })
-                    }
-                </Select>
-                <Select defaultValue={this.state.classes} style={{ width: 70 }} onChange={this.handleChangeClass}>
-                    {
-                        classes.map((item, index) => {
-                            return (<Option value={item} key={index}>{item}班</Option>)
-                        })
-                    }
-                </Select>
-                <Select defaultValue={this.state.majorId + ' ' + this.state.majorName} style={{ width: 150 }} onChange={this.handleChangeMajor}>
-                    {
-                        major.map((item, index) => {
-                            return (<Option value={item.id + ' ' + item.name} key={index}>{item.id + ' ' + item.name}</Option>)
-                        })
-                    }
-                </Select>
-                <Button type="primary" onClick={this.handleAdd}>添加</Button>
+                <div className='input-add'>
+                    <Input placeholder="请输入学号" style={{ width: 150 } } onChange={e => this.handleChangeId(e.target.value)}/>
+                    <Input placeholder="请输入密码" style={{ width: 150 }} onChange={e => this.handleChangePsw(e.target.value)}/>
+                    <Input placeholder="请输入姓名" style={{ width: 150 }} onChange={e => this.handleChangeName(e.target.value)}/>
+                    <Select defaultValue={this.state.gender} style={{ width: 60 }} onChange={this.handleChangeGender}>
+                        <Option value="男">男</Option>
+                        <Option value="女">女</Option>
+                    </Select>
+                    <Input placeholder="请输入联系方式" style={{ width: 150 }} onChange={e => this.handleChangeTel(e.target.value)}/>
+                    <Select defaultValue={this.state.grade} style={{ width: 90 }} onChange={this.handleChangeGrade}>
+                        {
+                            grade.map((item, index) => {
+                                return (<Option value={item} key={index}>{item}级</Option>)
+                            })
+                        }
+                    </Select>
+                    <Select defaultValue={this.state.classes} style={{ width: 70 }} onChange={this.handleChangeClass}>
+                        {
+                            classes.map((item, index) => {
+                                return (<Option value={item} key={index}>{item}班</Option>)
+                            })
+                        }
+                    </Select>
+                    <Select defaultValue={this.state.majorId + ' ' + this.state.majorName} style={{ width: 150 }} onChange={this.handleChangeMajor}>
+                        {
+                            major.map((item, index) => {
+                                return (<Option value={item.id + ' ' + item.name} key={index}>{item.id + ' ' + item.name}</Option>)
+                            })
+                        }
+                    </Select>
+                    <Button type="primary" onClick={this.handleAdd}>添加</Button>
+                </div>
+                <div className='list'>
+                   
+                </div>
             </div>
         )
+    }
+
+    componentWillMount() {
+        if(this.props.onAdminGetUsersInfo) {
+            this.props.onAdminGetUsersInfo('student');
+        }
     }
 }
 
 const WrappedmanageStudents = Form.create()(ManageStudents);
 
 WrappedmanageStudents.propTypes = { 
+    adminGetStudentsInfo: PropTypes.array,
     onAddStudentsInfo: PropTypes.func,
+    onAdminGetUsersInfo: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
     return {
-        
+        adminGetStudentsInfo: state.adminGetStudentsInfo,
     }
 }
 
@@ -142,6 +155,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         onAddStudentsInfo: (obj) => {
             dispatch(addStudentsInfo(obj))
+        },
+        onAdminGetUsersInfo: (identityType) => {
+            dispatch(adminGetUsersInfo(identityType))
         }
     }
 }

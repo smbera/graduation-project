@@ -34,7 +34,8 @@ function addInfo(req, res, next, obj) {
                 } else {
                     res.json({
                         code: code.ADD_USER_SUCC,
-                        msg: msg.ADD_USER_SUCC
+                        msg: msg.ADD_USER_SUCC,
+                        data: result
                     })
                 }
             })
