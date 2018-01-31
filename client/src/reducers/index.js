@@ -47,6 +47,7 @@ const ADMIN_SAVE_TEACHERS_INFO = 'ADMIN_SAVE_TEACHERS_INFO';
 const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
 const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
 const STUDENT_GET_COURSES = 'STUDENT_GET_COURSES';
+const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 
 // reducer
 export default function (state, action) {
@@ -116,6 +117,11 @@ export default function (state, action) {
             return { ...state, adminGetTeachersInfo: tempData.filter(item => action.id !== item.id) }
         case STUDENT_GET_COURSES:
             return { ...state, studentGetCoursesInfo: action.data }
+        case STUDENT_SELECT_COURSES:
+            tempData = [...state.studentGetCoursesInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target.selected = true;
+            return { ...state, studentGetCoursesInfo: tempData }
         default:
             return state
     }
@@ -548,5 +554,42 @@ function getStudentGetCoursesInfo() {
 export const studentGetCoursesInfo = () => {
     return (dispatch, getState) => {
         return dispatch(getStudentGetCoursesInfo())
+    }
+}
+
+function studentSelectCoursesSucc(id) {
+    return { type: STUDENT_SELECT_COURSES, id }
+}
+
+function postStudentSelectCourse(id) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        $.ajax({
+            url:`${SERVER_PATH}/${STUDENTS_INFO}/selectedCourseInfo`,
+            type: 'post',
+            data: {
+                'studentId': userInfo.userName,
+                'studentPsw': userInfo.password,
+                'isOpen': 'true',
+                'students_info_id': userInfo.userName,
+                'courses_info_id': id
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_ACCESS_SELECT_COURSE || response.code === status.SELECT_COURSE_FAILE) {
+                    message.error(msg);
+                } else if(response.code === status.SELECT_COURSE_SUCC) {
+                    message.success(msg); 
+                    dispatch(studentSelectCoursesSucc(id))
+                }
+            }
+        });
+    }
+}
+
+export const studentSelectCourse = (id) => {
+    return (dispatch, getState) => {
+        return dispatch(postStudentSelectCourse(id))
     }
 }

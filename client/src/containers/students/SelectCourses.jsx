@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { Table, Form, Button } from 'antd';
-import { studentGetCoursesInfo } from '../../reducers/index'
+import { studentGetCoursesInfo, studentSelectCourse } from '../../reducers/index'
 
 
 class SelectCourses extends Component {
@@ -75,7 +75,7 @@ class SelectCourses extends Component {
                                 <Button type="primary" size="small" disabled >已选择</Button>
                             </span>
                             : <span>
-                                <Button type="primary" size="small" onClick={() => this.props.onAdminEditStudentsInfo(record.id)}>选择</Button>
+                                <Button type="primary" size="small" onClick={() => this.props.onStudentSelectCourse(record.id)}>选择</Button>
                             </span>
                         }
                     </div>
@@ -104,6 +104,7 @@ const WrappedSelectCourses = Form.create()(SelectCourses);
 WrappedSelectCourses.propTypes = { 
     studentGetCoursesInfo: PropTypes.array,
     onStudentGetCoursesInfo: PropTypes.func,
+    onStudentSelectCourse: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
@@ -117,7 +118,9 @@ const mapDispatchToProps = (dispatch) => {
         onStudentGetCoursesInfo: () => {
             dispatch(studentGetCoursesInfo())
         },
-        
+        onStudentSelectCourse: (id) => {
+            dispatch(studentSelectCourse(id))
+        },
     }
 }
 

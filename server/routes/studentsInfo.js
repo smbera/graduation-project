@@ -343,21 +343,20 @@ router.post("/selectedCourseInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '无权限选课，请重新登录后再操作'
+                code: code.NO_ACCESS_SELECT_COURSE,
+                msg: msg.NO_ACCESS_SELECT_COURSE
             })
         } else {
             studentsCourses.create(req.body).then(function(result) {
                 if(result == null) {
                     res.json({
-                        code: code.ADD_USER_FAILE,
-                        msg: msg.ADD_USER_FAILE
+                        code: code.SELECT_COURSE_FAILE,
+                        msg: msg.SELECT_COURSE_FAILE
                     })
                 } else {
                     res.json({
-                        code: code.ADD_USER_SUCC,
-                        msg: msg.ADD_USER_SUCC,
-                        data: result
+                        code: code.SELECT_COURSE_SUCC,
+                        msg: msg.SELECT_COURSE_SUCC
                     })
                 }
             })
