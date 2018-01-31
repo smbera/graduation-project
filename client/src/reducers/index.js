@@ -471,3 +471,43 @@ export const adminDeleteUsersInfo = (identityType, id) => {
         return dispatch(postAdminDeleteUsersInfo(identityType, id))
     }
 }
+
+
+function postAdminOpenFunction(functionType, obj) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        let path;
+
+        if(functionType === 'openCoursesSelect') {
+            path = 'openCoursesSelect'
+        } else if(functionType === 'openTeachersAssessment') {
+            path = 'openTeachersAssessment'
+        }
+
+        $.ajax({
+            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
+            type: 'post',
+            data: {
+                'adminId': userInfo.userName,
+                'adminPsw': userInfo.password,
+                'grade': obj.grade,
+                'isOpen': obj.isOpen
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_ACCESS_OPERATE || response.code === status.OPERATE_FAILE || response.code === status.OPERATE_FAILE_FOR_NO_GRADE) {
+                    message.error(msg);
+                } else if(response.code === status.OPERATE_SUCC) {
+                    message.success(msg); 
+                }
+            }
+        });
+    }
+}
+
+export const adminOpenFunction = (functionType, obj) => {
+    return (dispatch, getState) => {
+        return dispatch(postAdminOpenFunction(functionType, obj))
+    }
+}

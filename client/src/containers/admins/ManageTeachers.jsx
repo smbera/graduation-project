@@ -139,7 +139,7 @@ class ManageTeachers extends Component {
 
     render() {
         return (
-            <div className='manage-students-wrap'>
+            <div className='manage-teachers-wrap'>
                 <div className='input-add'>
                     <Input placeholder="请输入工号" style={{ width: 150 } } onChange={e => this.handleChangeId(e.target.value)}/>
                     <Input placeholder="请输入密码" style={{ width: 150 }} onChange={e => this.handleChangePsw(e.target.value)}/>
