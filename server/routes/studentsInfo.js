@@ -365,4 +365,39 @@ router.post("/selectedCourseInfo", function(req, res, next) {
     }).catch(next);
 });
 
+router.post("/deleteSelectedCourseInfo", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.body.studentId,
+            password: req.body.studentPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.NO_ACCESS_DELETE_SELECT_COURSE,
+                msg: msg.NO_ACCESS_DELETE_SELECT_COURSE
+            })
+        } else {
+            studentsCourses.destroy({
+                where: {
+                    students_info_id: req.body.studentId,
+                    courses_info_id: req.body.courses_info_id
+                }
+            }).then(function(result) {
+                if(result == 0) {
+                    res.json({
+                        code: code.DELETE_SELECT_COURSE_FAILE,
+                        msg: msg.DELETE_SELECT_COURSE_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.DELETE_SELECT_COURSE_SUCC,
+                        msg: msg.DELETE_SELECT_COURSE_SUCC
+                    })
+                }
+            })
+        }
+    }).catch(next);
+});
+
 module.exports = router;
