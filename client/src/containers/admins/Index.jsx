@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import ChangePassword from '../component/ChangePassword'
+import ManageStudents from './ManageStudents'
+import ManageTeachers from './ManageTeachers'
+import OpenCoursesSelect from './OpenCoursesSelect'
+import OpenTeachersAssessment from './OpenTeachersAssessment'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
@@ -23,7 +27,7 @@ class AdminsIndex extends Component {
         })
 
         // 清除所有cookie
-        if(key === '8') {
+        if(key === '7') {
             let keys = document.cookie.match(/[^ =;]+(?==)/g);  
             if(keys) {  
                 for(let i = keys.length; i--;)  
@@ -37,6 +41,18 @@ class AdminsIndex extends Component {
         let selectMenu = () => {
             if(this.state.key === '1') {
                 return <ChangePassword />
+            }
+            if(this.state.key === '3') {
+                return <ManageStudents />
+            }
+            if(this.state.key === '4') {
+                return <ManageTeachers />
+            }
+            if(this.state.key === '5') {
+                return <OpenCoursesSelect />
+            }
+            if(this.state.key === '6') {
+                return <OpenTeachersAssessment />
             }
         }
 
@@ -59,25 +75,21 @@ class AdminsIndex extends Component {
                         </Menu.Item>
                         <Menu.Item key="3">
                             <Icon type="book" />
-                            <span>选择课程</span>
+                            <span>管理学生</span>
                         </Menu.Item>
                         <Menu.Item key="4">
                             <Icon type="export" />
-                            <span>我的课表</span>
+                            <span>管理教师</span>
                         </Menu.Item>
                         <Menu.Item key="5">
                             <Icon type="export" />
-                            <span>考试安排</span>
+                            <span>开启/关闭选课</span>
                         </Menu.Item>
                         <Menu.Item key="6">
                             <Icon type="switcher" />
-                            <span>查看成绩</span>
+                            <span>开启/关闭评教</span>
                         </Menu.Item>
                         <Menu.Item key="7">
-                            <Icon type="line-chart" />
-                            <span>教学质量评价</span>
-                        </Menu.Item>
-                        <Menu.Item key="8">
                             <Icon type="logout" />
                             <span>退出登录</span>
                         </Menu.Item>

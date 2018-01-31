@@ -157,8 +157,8 @@ function open(req, res, next, obj) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '无权限开启'
+                code: code.NO_ACCESS_OPERATE,
+                msg: msg.NO_ACCESS_OPERATE
             })
         } else {
             studentsInfo.findAll({
@@ -169,8 +169,8 @@ function open(req, res, next, obj) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        status: 1,
-                        msg: '开启失败,没找到对应的年级'
+                        code: code.OPERATE_FAILE_FOR_NO_GRADE,
+                        msg: msg.OPERATE_FAILE_FOR_NO_GRADE
                     })
                 } else {
                     var tempArr = [];
@@ -189,13 +189,13 @@ function open(req, res, next, obj) {
                     }).then(function(result) {
                         if(result[0] == 0) {
                             res.json({
-                                status: 1,
-                                msg: '开启失败'
+                                code: code.OPERATE_FAILE,
+                                msg: msg.OPERATE_FAILE
                             })
                         } else {
                             res.json({
-                                status: 1,
-                                msg: '开启成功'
+                                code: code.OPERATE_SUCC,
+                                msg: msg.OPERATE_SUCC
                             })
                         }
                     })

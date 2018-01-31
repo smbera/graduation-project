@@ -6,7 +6,7 @@ import {  adminOpenFunction } from '../../reducers/index'
 
 const Option = Select.Option;
 
-class OpenCoursesSelect extends Component {
+class OpenTeachersAssessment extends Component {
     constructor(props) {
         super(props);
 
@@ -29,7 +29,7 @@ class OpenCoursesSelect extends Component {
     }
     handleSubmit = () => {
         if(this.props.onAdminOpenFunction) {
-            this.props.onAdminOpenFunction('openCoursesSelect', this.state)
+            this.props.onAdminOpenFunction('openTeachersAssessment', this.state)
         }
     }
 
@@ -43,9 +43,9 @@ class OpenCoursesSelect extends Component {
                     <Option value="2016">2016级</Option>
                     <Option value="2017">2017级</Option>
                 </Select>
-                <Select defaultValue={this.state.isOpen === true ? '开启选课' : '关闭选课'} style={{ width: 160 }} onChange={this.handleChangeIsOpen}>
-                    <Option value="true">开启选课</Option>
-                    <Option value="false">关闭选课</Option>
+                <Select defaultValue={this.state.isOpen === true ? '开启评教' : '关闭评教'} style={{ width: 160 }} onChange={this.handleChangeIsOpen}>
+                    <Option value="true">开启评教</Option>
+                    <Option value="false">关闭评教</Option>
                 </Select>
                 <Button type="primary" onClick={this.handleSubmit} style={{marginLeft: 20}}>确定</Button>
             </div>
@@ -53,9 +53,9 @@ class OpenCoursesSelect extends Component {
     }
 }
 
-const WrappedOpenCoursesSelect = Form.create()(OpenCoursesSelect);
+const WrappedOpenTeachersAssessment = Form.create()(OpenTeachersAssessment);
 
-WrappedOpenCoursesSelect.propTypes = { 
+WrappedOpenTeachersAssessment.propTypes = { 
     onAdminOpenFunction: PropTypes.func,
 } 
 
@@ -75,4 +75,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(WrappedOpenCoursesSelect)
+)(WrappedOpenTeachersAssessment)
