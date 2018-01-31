@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
-import { Table, Form, Input, Button, Popconfirm } from 'antd';
+import { Table, Form, Button } from 'antd';
 import { studentGetCoursesInfo } from '../../reducers/index'
 
 
@@ -67,10 +67,10 @@ class SelectCourses extends Component {
             title: '操作栏',
             dataIndex: 'operation',
             render: (text, record) => {
-                const {editable} = record;
+                const {selected} = record;
                 return (
                     <div className="editable-row-operations">
-                        {editable 
+                        {selected 
                             ? <span>
                                 <Button type="primary" size="small" disabled >已选择</Button>
                             </span>

@@ -58,11 +58,28 @@ router.get("/getAllCoursesInfo", function(req, res, next) {
 	            			}
 	            		}
 	            	}
-					res.json({
-	                    code: code.GET_CAN_SELECT_SUCC,
-                        msg: msg.GET_CAN_SELECT_SUCC,
-                        data: coursesInfoArr 
-	                })
+                    studentsCourses.findAll({
+                        attributes: ['courses_info_id'],
+                        where: {
+                            students_info_id: req.query.studentId
+                        }
+                    }).then(function(result) {
+                        for(var i = 0; i < coursesInfoArr.length; i++) {
+                            for(var j = 0; j < result.length; j++) {
+                                if(coursesInfoArr[i].dataValues.id == result[j].courses_info_id) {
+                                    coursesInfoArr[i].dataValues.selected =  true;
+                                    break;
+                                } else {
+                                    coursesInfoArr[i].dataValues.selected =  false;
+                                }
+                            }
+                        }
+                        res.json({
+                            code: code.GET_CAN_SELECT_SUCC,
+                            msg: msg.GET_CAN_SELECT_SUCC,
+                            data: coursesInfoArr 
+                        })
+                    })
 	            })
             }
         })
