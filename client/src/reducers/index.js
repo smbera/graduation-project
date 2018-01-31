@@ -9,7 +9,7 @@ const STUDENTS_INFO = 'studentsInfo';
 const TEACHERS_INFO = 'teachersInfo';
 const ADMINS_INFO = 'adminsInfo';
 
-let newAdminGetStudentsInfo,
+let tempData,
     target;
 
 function ajaxSignIn(identityType, identity, userName, password, isLoginWithCookie, dispatch) {
@@ -91,12 +91,17 @@ function ajaxChangePassword(identityType, userInfo, originalPassword, confirmPas
 const LOGIN_SUCC = 'LOGIN_SUCC';
 const LOGIN_FAILE = 'LOGIN_FAILE';
 const ADD_STUDENTS_INFO_SUCC = 'ADD_STUDENTS_INFO_SUCC';
+const ADD_TEACHERS_INFO_SUCC = 'ADD_TEACHERS_INFO_SUCC';
 const ADMIN_GET_STUDENTS_INFO = 'ADMIN_GET_STUDENTS_INFO';
 const ADMIN_GET_TEACHERS_INFO = 'ADMIN_GET_TEACHERS_INFO';
 const ADMIN_EDIT_STUDENTS_INFO = 'ADMIN_EDIT_STUDENTS_INFO';
+const ADMIN_EDIT_TEACHERS_INFO = 'ADMIN_EDIT_TEACHERS_INFO';
 const ADMIN_CHANGE_STUDENTS_INFO = 'ADMIN_CHANGE_STUDENTS_INFO';
+const ADMIN_CHANGE_TEACHERS_INFO = 'ADMIN_CHANGE_TEACHERS_INFO';
 const ADMIN_SAVE_STUDENTS_INFO = 'ADMIN_SAVE_STUDENTS_INFO';
+const ADMIN_SAVE_TEACHERS_INFO = 'ADMIN_SAVE_TEACHERS_INFO';
 const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
+const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
 
 // reducer
 export default function (state, action) {
@@ -114,32 +119,55 @@ export default function (state, action) {
         case LOGIN_FAILE:
             return { ...state, isLogined: false, identity: action.identity }
         case ADD_STUDENTS_INFO_SUCC:
-            newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
-            newAdminGetStudentsInfo.unshift(action.newStudentInfo)
+            tempData = [...state.adminGetStudentsInfo]
+            tempData.unshift(action.newStudentInfo)
             
-            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo }
+            return { ...state, adminGetStudentsInfo: tempData }
+        case ADD_TEACHERS_INFO_SUCC:
+            tempData = [...state.adminGetTeachersInfo]
+            tempData.unshift(action.newTeacherInfo)
+            
+            return { ...state, adminGetTeachersInfo: tempData }
         case ADMIN_GET_STUDENTS_INFO:
             return { ...state, adminGetStudentsInfo: action.data }
         case ADMIN_GET_TEACHERS_INFO:
             return { ...state, adminGetTeachersInfo: action.data }
         case ADMIN_EDIT_STUDENTS_INFO:
-            newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
-            target = newAdminGetStudentsInfo.filter(item => action.id === item.id)[0];
+            tempData = [...state.adminGetStudentsInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
             target.editable = true;
-            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo }
+            return { ...state, adminGetStudentsInfo: tempData }
+        case ADMIN_EDIT_TEACHERS_INFO:
+            tempData = [...state.adminGetTeachersInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target.editable = true;
+            return { ...state, adminGetTeachersInfo: tempData }
         case ADMIN_CHANGE_STUDENTS_INFO:
-            newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
-            target = newAdminGetStudentsInfo.filter(item => action.id === item.id)[0];
+            tempData = [...state.adminGetStudentsInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
             target[action.column] = action.value;
-            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo }
+            return { ...state, adminGetStudentsInfo: tempData }
+        case ADMIN_CHANGE_TEACHERS_INFO:
+            tempData = [...state.adminGetTeachersInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target[action.column] = action.value;
+            return { ...state, adminGetTeachersInfo: tempData }  
         case ADMIN_SAVE_STUDENTS_INFO:
-            newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
-            target = newAdminGetStudentsInfo.filter(item => action.obj.id === item.id)[0];
+            tempData = [...state.adminGetStudentsInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
             delete target.editable;
-            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo }
+            return { ...state, adminGetStudentsInfo: tempData }
+        case ADMIN_SAVE_TEACHERS_INFO:
+            tempData = [...state.adminGetTeachersInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            delete target.editable;
+            return { ...state, adminGetTeachersInfo: tempData }
         case ADMIN_DELETE_STUDENTS_INFO:
-            newAdminGetStudentsInfo = [...state.adminGetStudentsInfo]
-            return { ...state, adminGetStudentsInfo: newAdminGetStudentsInfo.filter(item => action.id !== item.id) }
+            tempData = [...state.adminGetStudentsInfo]
+            return { ...state, adminGetStudentsInfo: tempData.filter(item => action.id !== item.id) }
+        case ADMIN_DELETE_TEACHERS_INFO:
+            tempData = [...state.adminGetTeachersInfo]
+            return { ...state, adminGetTeachersInfo: tempData.filter(item => action.id !== item.id) }
         default:
             return state
     }
@@ -195,13 +223,17 @@ function addStudentsInfoSucc(newStudentInfo) {
     return { type: ADD_STUDENTS_INFO_SUCC, newStudentInfo }
 }
 
-function postStudentsInfo(obj) {
+function addTeachersInfoSucc(newTeacherInfo) {
+    return { type: ADD_TEACHERS_INFO_SUCC, newTeacherInfo }
+}
+
+function postUsersInfo(identityType, obj) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
-        $.ajax({
-            url:`${SERVER_PATH}/${ADMINS_INFO}/addStudentsInfo`,
-            type: 'post',
-            data: {
+        let tempObj,
+            path;
+        if(identityType === 'student') {
+            tempObj = {
                 'adminId': userInfo.userName,
                 'adminPsw': userInfo.password,
                 'id': obj.id,
@@ -214,7 +246,28 @@ function postStudentsInfo(obj) {
                 'majorId': obj.majorId,
                 'majorName': obj.majorName,
                 'admins_info_id': userInfo.userName
-            },
+            }
+            path = 'addStudentsInfo';
+        } else if(identityType === 'teacher') {
+            tempObj = {
+                'adminId': userInfo.userName,
+                'adminPsw': userInfo.password,
+                'id': obj.id,
+                'password': obj.password,
+                'name': obj.name,
+                'gender': obj.gender,
+                'tel': obj.tel,
+                'grade': obj.grade,
+                'title': obj.title,
+                'admins_info_id': userInfo.userName
+            }
+            path = 'addTeachersInfo';
+        }
+
+        $.ajax({
+            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
+            type: 'post',
+            data: tempObj,
             async: false,
             success: function (response) {
                 let msg = response.msg;
@@ -222,16 +275,20 @@ function postStudentsInfo(obj) {
                     message.error(msg);
                 } else if(response.code === status.ADD_USER_SUCC) {
                     message.success(msg); 
-                    dispatch(addStudentsInfoSucc(response.data))
+                    if(identityType === 'student') {
+                        dispatch(addStudentsInfoSucc(response.data))
+                    } else if(identityType === 'teacher') {
+                        dispatch(addTeachersInfoSucc(response.data))
+                    }
                 }
             }
         });
     }
 }
 
-export const addStudentsInfo = (obj) => {
+export const addUsersInfo = (identityType, obj) => {
     return (dispatch, getState) => {
-        return dispatch(postStudentsInfo(obj))
+        return dispatch(postUsersInfo(identityType, obj))
     }
 }
 
@@ -282,21 +339,33 @@ export const adminEditStudentsInfo = (id) => {
     return {type: ADMIN_EDIT_STUDENTS_INFO, id}
 }
 
+export const adminEditTeachersInfo = (id) => {
+    return {type: ADMIN_EDIT_TEACHERS_INFO, id}
+}
+
 export const adminChangeStudentsInfo = (value, id, column) => {
     return {type: ADMIN_CHANGE_STUDENTS_INFO, value, id, column}
 }
 
-function adminSaveStudentsInfoSucc(obj) {
-    return { type: ADMIN_SAVE_STUDENTS_INFO, obj }
+export const adminChangeTeachersInfo = (value, id, column) => {
+    return {type: ADMIN_CHANGE_TEACHERS_INFO, value, id, column}
 }
 
-function postAdminSaveStudentsInfo(obj) {
+function adminSaveStudentsInfoSucc(id) {
+    return { type: ADMIN_SAVE_STUDENTS_INFO, id }
+}
+
+function adminSaveTeachersInfoSucc(id) {
+    return { type: ADMIN_SAVE_TEACHERS_INFO, id }
+}
+
+function postAdminSaveUsersInfo(identityType, obj) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
-        $.ajax({
-            url:`${SERVER_PATH}/${ADMINS_INFO}/updateStudentsInfo`,
-            type: 'post',
-            data: {
+        let tempObj,
+            path;
+        if(identityType === 'student') {
+            tempObj = {
                 'adminId': userInfo.userName,
                 'adminPsw': userInfo.password,
                 'id': obj.id,
@@ -309,7 +378,27 @@ function postAdminSaveStudentsInfo(obj) {
                 'majorId': obj.majorId,
                 'majorName': obj.majorName,
                 'admins_info_id': userInfo.userName
-            },
+            }
+            path = 'updateStudentsInfo';
+        } else if(identityType === 'teacher') {
+            tempObj = {
+                'adminId': userInfo.userName,
+                'adminPsw': userInfo.password,
+                'id': obj.id,
+                'password': obj.password,
+                'name': obj.name,
+                'gender': obj.gender,
+                'tel': obj.tel,
+                'grade': obj.grade,
+                'title': obj.title,
+                'admins_info_id': userInfo.userName
+            }
+            path = 'updateTeachersInfo';
+        }
+        $.ajax({
+            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
+            type: 'post',
+            data: tempObj,
             async: false,
             success: function (response) {
                 let msg = response.msg;
@@ -317,16 +406,20 @@ function postAdminSaveStudentsInfo(obj) {
                     message.error(msg);
                 } else if(response.code === status.UPDATE_USER_SUCC) {
                     message.success(msg); 
-                    dispatch(adminSaveStudentsInfoSucc(obj))
+                    if(identityType === 'student') {
+                        dispatch(adminSaveStudentsInfoSucc(obj.id))
+                    } else if(identityType === 'teacher') {
+                        dispatch(adminSaveTeachersInfoSucc(obj.id))
+                    }
                 }
             }
         });
     }
 }
 
-export const adminSaveStudentsInfo = (obj) => {
+export const adminSaveUsersInfo = (identityType, obj) => {
     return (dispatch, getState) => {
-        return dispatch(postAdminSaveStudentsInfo(obj))
+        return dispatch(postAdminSaveUsersInfo(identityType, obj))
     }
 }
 
@@ -334,11 +427,21 @@ function adminDeleteStudentsInfoSucc(id) {
     return { type: ADMIN_DELETE_STUDENTS_INFO, id }
 }
 
-function postAdminDeleteStudentsInfo(id) {
+function adminDeleteTeachersInfoSucc(id) {
+    return { type: ADMIN_DELETE_TEACHERS_INFO, id }
+}
+
+function postAdminDeleteUsersInfo(identityType, id) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
+        let path;
+        if(identityType === 'student') {
+            path = 'deleteStudentsInfo'
+        } else if(identityType === 'teacher') {
+            path = 'deleteTeachersInfo'
+        }
         $.ajax({
-            url:`${SERVER_PATH}/${ADMINS_INFO}/deleteStudentsInfo`,
+            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
             type: 'post',
             data: {
                 'adminId': userInfo.userName,
@@ -352,15 +455,19 @@ function postAdminDeleteStudentsInfo(id) {
                     message.error(msg);
                 } else if(response.code === status.DELETE_USER_SUCC) {
                     message.success(msg); 
-                    dispatch(adminDeleteStudentsInfoSucc(id))
+                    if(identityType === 'student') {
+                        dispatch(adminDeleteStudentsInfoSucc(id))
+                    } else if(identityType === 'teacher') {
+                        dispatch(adminDeleteTeachersInfoSucc(id))
+                    }
                 }
             }
         });
     }
 }
 
-export const adminDeleteStudentsInfo = (id) => {
+export const adminDeleteUsersInfo = (identityType, id) => {
     return (dispatch, getState) => {
-        return dispatch(postAdminDeleteStudentsInfo(id))
+        return dispatch(postAdminDeleteUsersInfo(identityType, id))
     }
 }

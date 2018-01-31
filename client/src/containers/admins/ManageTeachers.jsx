@@ -2,43 +2,29 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { Table, Form, Input, Button, Select, Popconfirm } from 'antd';
-import { addUsersInfo, adminGetUsersInfo, adminEditStudentsInfo, adminChangeStudentsInfo, adminSaveUsersInfo, adminDeleteUsersInfo } from '../../reducers/index'
+import { addUsersInfo, adminGetUsersInfo, adminEditTeachersInfo, adminChangeTeachersInfo, adminSaveUsersInfo, adminDeleteUsersInfo } from '../../reducers/index'
 import md5 from 'md5';
 
 const Option = Select.Option;
 const grade = [2014, 2015, 2016, 2017];
-const classes = [1, 2, 3, 4];
-const major = [{
-    id: 1001,
-    name: '网络工程'
-},{
-    id: 1002,
-    name: '软件工程'
-},{
-    id: 1003,
-    name: '计算机科学'
-},{
-    id: 1004,
-    name: '信息管理'
-}]
 
-class ManageStudents extends Component {
+class ManageTeachers extends Component {
     constructor(props) {
         super(props);
         this.columns = [{
             title: '学号',
             dataIndex: 'id',
-            width: '12%',
+            width: '15%',
             render: (text, record) => this.renderColumns(text, record, 'id'),
         }, {
             title: '密码',
             dataIndex: 'password',
-            width: '15%',
+            width: '16%',
             render: (text, record) => this.renderColumns(text, record, 'password'),
         }, {
             title: '姓名',
             dataIndex: 'name',
-            width: '8%',
+            width: '10%',
             render: (text, record) => this.renderColumns(text, record, 'name'),
         }, {
             title: '性别',
@@ -56,20 +42,10 @@ class ManageStudents extends Component {
             width: '7%',
             render: (text, record) => this.renderColumns(text, record, 'grade'),
         }, {
-            title: '班别',
-            dataIndex: 'class',
-            width: '7%',
-            render: (text, record) => this.renderColumns(text, record, 'class'),
-        }, {
-            title: '专业号',
-            dataIndex: 'majorId',
-            width: '8%',
-            render: (text, record) => this.renderColumns(text, record, 'majorId'),
-        }, {
-            title: '专业名',
-            dataIndex: 'majorName',
-            width: '15%',
-            render: (text, record) => this.renderColumns(text, record, 'majorName'),
+            title: '职称',
+            dataIndex: 'title',
+            width: '17%',
+            render: (text, record) => this.renderColumns(text, record, 'title'),
         }, {
             title: '操作栏',
             dataIndex: 'operation',
@@ -79,11 +55,11 @@ class ManageStudents extends Component {
                     <div className="editable-row-operations">
                         {editable 
                             ? <span>
-                                <Button type="primary" size="small" onClick={() => this.props.onAdminSaveUsersInfo('student', record)}>保存</Button>
+                                <Button type="primary" size="small" onClick={() => this.props.onAdminSaveUsersInfo('teacher', record)}>保存</Button>
                             </span>
                             : <span>
-                                <Button type="primary" size="small" onClick={() => this.props.onAdminEditStudentsInfo(record.id)}>编辑</Button>
-                                <Popconfirm title="是否删除?" onConfirm={() => this.props.onAdminDeleteUsersInfo('student', record.id)}>
+                                <Button type="primary" size="small" onClick={() => this.props.onAdminEditTeachersInfo(record.id)}>编辑</Button>
+                                <Popconfirm title="是否删除?" onConfirm={() => this.props.onAdminDeleteUsersInfo('teacher', record.id)}>
                                     <Button type="danger" size="small">删除</Button>
                                 </Popconfirm>
                             </span>
@@ -101,9 +77,7 @@ class ManageStudents extends Component {
         gender: '男',
         tel: 1,
         grade: 2014,
-        classes: 1,
-        majorId: 1001,
-        majorName: '网络工程'
+        title: '高级教师',
     };
     handleChangeId = (value) => {
         value = value.replace(/\s+/g, '')
@@ -139,23 +113,16 @@ class ManageStudents extends Component {
             grade: value
         });
     }
-    handleChangeClass = (value) => {
+    handleChangeTitle = (value) => {
+        value = value.replace(/\s+/g, '')
         this.setState({
-            classes: value
+            title: value
         });
     }
-    handleChangeMajor = (value) => {
-        let tempArr = value.split(' ');
-        this.setState({
-            majorId: parseInt(tempArr[0], 10)
-        });
-        this.setState({
-            majorName: tempArr[1]
-        });
-    }
+
     handleAdd = () => {
         if(this.props.onAddUsersInfo) {
-            this.props.onAddUsersInfo('student', this.state)
+            this.props.onAddUsersInfo('teacher', this.state)
         }
     }
 
@@ -163,7 +130,7 @@ class ManageStudents extends Component {
         return (
             <div>
                 {record.editable
-                    ? <Input style={{margin: '-5px 0'}} value={text} onChange={e => this.props.onAdminChangeStudentsInfo(e.target.value, record.id, column)}/>
+                    ? <Input style={{margin: '-5px 0'}} value={text} onChange={e => this.props.onAdminChangeTeachersInfo(e.target.value, record.id, column)}/>
                     : text
                 }
             </div>
@@ -174,7 +141,7 @@ class ManageStudents extends Component {
         return (
             <div className='manage-students-wrap'>
                 <div className='input-add'>
-                    <Input placeholder="请输入学号" style={{ width: 150 } } onChange={e => this.handleChangeId(e.target.value)}/>
+                    <Input placeholder="请输入工号" style={{ width: 150 } } onChange={e => this.handleChangeId(e.target.value)}/>
                     <Input placeholder="请输入密码" style={{ width: 150 }} onChange={e => this.handleChangePsw(e.target.value)}/>
                     <Input placeholder="请输入姓名" style={{ width: 150 }} onChange={e => this.handleChangeName(e.target.value)}/>
                     <Select defaultValue={this.state.gender} style={{ width: 60 }} onChange={this.handleChangeGender}>
@@ -189,24 +156,11 @@ class ManageStudents extends Component {
                             })
                         }
                     </Select>
-                    <Select defaultValue={this.state.classes} style={{ width: 70 }} onChange={this.handleChangeClass}>
-                        {
-                            classes.map((item, index) => {
-                                return (<Option value={item} key={index}>{item}班</Option>)
-                            })
-                        }
-                    </Select>
-                    <Select defaultValue={this.state.majorId + ' ' + this.state.majorName} style={{ width: 150 }} onChange={this.handleChangeMajor}>
-                        {
-                            major.map((item, index) => {
-                                return (<Option value={item.id + ' ' + item.name} key={index}>{item.id + ' ' + item.name}</Option>)
-                            })
-                        }
-                    </Select>
+                    <Input placeholder="请输入教师职称" style={{ width: 150 }} onChange={e => this.handleChangeTitle(e.target.value)}/>
                     <Button type="primary" onClick={this.handleAdd} style={{marginLeft: 20}}>添加</Button>
                 </div>
                 <div className='list'>
-                   <Table bordered dataSource={this.props.adminGetStudentsInfo} columns={this.columns} style={{marginTop: 30}}/>
+                   <Table bordered dataSource={this.props.adminGetTeachersInfo} columns={this.columns} style={{marginTop: 30}}/>
                 </div>
             </div>
         )
@@ -214,19 +168,20 @@ class ManageStudents extends Component {
 
     componentWillMount() {
         if(this.props.onAdminGetUsersInfo) {
-            this.props.onAdminGetUsersInfo('student');
+            this.props.onAdminGetUsersInfo('teacher');
         }
     }
 }
 
-const WrappedmanageStudents = Form.create()(ManageStudents);
+const WrappedmanageTeachers = Form.create()(ManageTeachers);
 
-WrappedmanageStudents.propTypes = { 
+WrappedmanageTeachers.propTypes = { 
     adminGetStudentsInfo: PropTypes.array,
+    adminGetTeachersInfo: PropTypes.array,
     onAddUsersInfo: PropTypes.func,
     onAdminGetUsersInfo: PropTypes.func,
-    onAdminEditStudentsInfo: PropTypes.func,
-    onAdminChangeStudentsInfo: PropTypes.func,
+    onAdminEditTeachersInfo: PropTypes.func,
+    onAdminChangeTeachersInfo: PropTypes.func,
     onAdminSaveUsersInfo: PropTypes.func,
     onAdminDeleteUsersInfo: PropTypes.func,
 } 
@@ -234,6 +189,7 @@ WrappedmanageStudents.propTypes = {
 const mapStateToProps = (state) => {
     return {
         adminGetStudentsInfo: state.adminGetStudentsInfo,
+        adminGetTeachersInfo: state.adminGetTeachersInfo,
     }
 }
 
@@ -245,11 +201,11 @@ const mapDispatchToProps = (dispatch) => {
         onAdminGetUsersInfo: (identityType) => {
             dispatch(adminGetUsersInfo(identityType))
         },
-        onAdminEditStudentsInfo: (id) => {
-            dispatch(adminEditStudentsInfo(id))
+        onAdminEditTeachersInfo: (id) => {
+            dispatch(adminEditTeachersInfo(id))
         },
-        onAdminChangeStudentsInfo: (value, id, column) => {
-            dispatch(adminChangeStudentsInfo(value, id, column))
+        onAdminChangeTeachersInfo: (value, id, column) => {
+            dispatch(adminChangeTeachersInfo(value, id, column))
         },
         onAdminSaveUsersInfo: (identityType, record) => {
             dispatch(adminSaveUsersInfo(identityType, record))
@@ -263,4 +219,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(WrappedmanageStudents)
+)(WrappedmanageTeachers)
