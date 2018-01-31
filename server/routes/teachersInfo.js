@@ -3,6 +3,8 @@ var router = express.Router();
 
 var { sequelize, Sequelize } = require("../config/db");
 var common = require("./common.js");
+var code = require("../status/code.js");
+var msg = require("../status/msg.js");
 
 var adminsInfo = sequelize.import("../models/adminsInfo");
 var studentsInfo = sequelize.import("../models/studentsInfo");

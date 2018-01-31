@@ -46,6 +46,7 @@ const ADMIN_SAVE_STUDENTS_INFO = 'ADMIN_SAVE_STUDENTS_INFO';
 const ADMIN_SAVE_TEACHERS_INFO = 'ADMIN_SAVE_TEACHERS_INFO';
 const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
 const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
+const STUDENT_GET_COURSES = 'STUDENT_GET_COURSES';
 
 // reducer
 export default function (state, action) {
@@ -55,6 +56,7 @@ export default function (state, action) {
             identity: '1', // 学生为1，教师为2, 管理员为3
             adminGetStudentsInfo: [],
             adminGetTeachersInfo: [],
+            studentGetCoursesInfo: [],
         }
     }
     switch (action.type) {
@@ -112,6 +114,8 @@ export default function (state, action) {
         case ADMIN_DELETE_TEACHERS_INFO:
             tempData = [...state.adminGetTeachersInfo]
             return { ...state, adminGetTeachersInfo: tempData.filter(item => action.id !== item.id) }
+        case STUDENT_GET_COURSES:
+            return { ...state, studentGetCoursesInfo: action.data }
         default:
             return state
     }
@@ -509,5 +513,40 @@ function postAdminOpenFunction(functionType, obj) {
 export const adminOpenFunction = (functionType, obj) => {
     return (dispatch, getState) => {
         return dispatch(postAdminOpenFunction(functionType, obj))
+    }
+}
+
+function studentGetCoursesInfoSucc(data) {
+    return { type: STUDENT_GET_COURSES, data }
+}
+
+function getStudentGetCoursesInfo() {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        $.ajax({
+            url:`${SERVER_PATH}/${STUDENTS_INFO}/getAllCoursesInfo`,
+            type: 'get',
+            data: {
+                'studentId': userInfo.userName,
+                'studentPsw': userInfo.password
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_COURSE_CAN_SELECT) {
+                    message.error(msg);
+                } else if(response.code === status.GET_CAN_SELECT_SUCC) {
+                    message.success(msg); 
+                    console.log(response);
+                    dispatch(studentGetCoursesInfoSucc(response.data))
+                }
+            }
+        });
+    }
+}
+
+export const studentGetCoursesInfo = () => {
+    return (dispatch, getState) => {
+        return dispatch(getStudentGetCoursesInfo())
     }
 }

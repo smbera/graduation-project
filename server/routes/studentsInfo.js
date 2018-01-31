@@ -3,6 +3,8 @@ var router = express.Router();
 
 var { sequelize, Sequelize } = require("../config/db");
 var common = require("./common.js");
+var code = require("../status/code.js");
+var msg = require("../status/msg.js");
 
 var adminsInfo = sequelize.import("../models/adminsInfo");
 var studentsInfo = sequelize.import("../models/studentsInfo");
@@ -28,8 +30,8 @@ router.get("/getAllCoursesInfo", function(req, res, next) {
         }).then(function(result) {
             if(result.length == 0) {
                 res.json({
-                    code: 1,
-                    msg: '当前你还没有任何课程可以选择'
+                    code: code.NO_COURSE_CAN_SELECT,
+                    msg: msg.NO_COURSE_CAN_SELECT
                 })
             } else {
             	var coursesInfoArr = result,
@@ -57,8 +59,9 @@ router.get("/getAllCoursesInfo", function(req, res, next) {
 	            		}
 	            	}
 					res.json({
-	                    code: 1,
-	                    data: coursesInfoArr
+	                    code: code.GET_CAN_SELECT_SUCC,
+                        msg: msg.GET_CAN_SELECT_SUCC,
+                        data: coursesInfoArr 
 	                })
 	            })
             }
