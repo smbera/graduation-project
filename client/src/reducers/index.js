@@ -49,6 +49,7 @@ const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
 const STUDENT_GET_ALL_COURSES = 'STUDENT_GET_ALL_COURSES';
 const STUDENT_GET_SELECT_COURSES = 'STUDENT_GET_SELECT_COURSES';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
+const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 
 // reducer
 export default function (state, action) {
@@ -126,6 +127,9 @@ export default function (state, action) {
             target = tempData.filter(item => action.id === item.id)[0];
             target.selected = true;
             return { ...state, studentGetAllCoursesInfo: tempData }
+        case STUDENT_DELETE_SELECT_COURSES:
+            tempData = [...state.studentGetSelectCoursesInfo]
+            return { ...state, studentGetSelectCoursesInfo: tempData.filter(item => action.id !== item.id) }
         default:
             return state
     }
@@ -604,5 +608,40 @@ function postStudentSelectCourse(id) {
 export const studentSelectCourse = (id) => {
     return (dispatch, getState) => {
         return dispatch(postStudentSelectCourse(id))
+    }
+}
+
+function studentDeleteSelectCoursesSucc(id) {
+    return { type: STUDENT_DELETE_SELECT_COURSES, id }
+}
+
+function postStudentDeleteSelectCourse(id) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        $.ajax({
+            url:`${SERVER_PATH}/${STUDENTS_INFO}/deleteSelectedCourseInfo`,
+            type: 'post',
+            data: {
+                'studentId': userInfo.userName,
+                'studentPsw': userInfo.password,
+                'courses_info_id': id
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.NO_ACCESS_DELETE_SELECT_COURSE || response.code === status.DELETE_SELECT_COURSE_FAILE) {
+                    message.error(msg);
+                } else if(response.code === status.DELETE_SELECT_COURSE_SUCC) {
+                    message.success(msg); 
+                    dispatch(studentDeleteSelectCoursesSucc(id))
+                }
+            }
+        });
+    }
+}
+
+export const studentDeleteSelectCourse = (id) => {
+    return (dispatch, getState) => {
+        return dispatch(postStudentDeleteSelectCourse(id))
     }
 }

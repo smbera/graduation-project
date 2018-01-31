@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { Table, Form, Button } from 'antd';
-import { studentGetCoursesInfo, studentSelectCourse } from '../../reducers/index'
+import { studentGetCoursesInfo, studentDeleteSelectCourse } from '../../reducers/index'
 
 
 class MyCourses extends Component {
@@ -54,7 +54,7 @@ class MyCourses extends Component {
             render: (text, record) => {
                 return (
                     <span>
-                        <Button type="primary" size="small" onClick={() => this.props.onStudentSelectCourse(record.id)}>退选</Button>
+                        <Button type="primary" size="small" onClick={() => this.props.onStudentDeleteSelectCourse(record.id)}>退选</Button>
                     </span>
                 );
             },
@@ -81,7 +81,7 @@ const WrappedMyCourses = Form.create()(MyCourses);
 WrappedMyCourses.propTypes = { 
     studentGetSelectCoursesInfo: PropTypes.array,
     onStudentGetCoursesInfo: PropTypes.func,
-    onStudentSelectCourse: PropTypes.func,
+    onStudentDeleteSelectCourse: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
@@ -95,8 +95,8 @@ const mapDispatchToProps = (dispatch) => {
         onStudentGetCoursesInfo: (functionType) => {
             dispatch(studentGetCoursesInfo(functionType))
         },
-        onStudentSelectCourse: (id) => {
-            dispatch(studentSelectCourse(id))
+        onStudentDeleteSelectCourse: (id) => {
+            dispatch(studentDeleteSelectCourse(id))
         },
     }
 }
