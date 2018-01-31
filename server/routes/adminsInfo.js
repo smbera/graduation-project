@@ -89,8 +89,8 @@ function updateInfo(req, res, next, obj) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '无权限更新用户'
+                code: code.NO_ACCESS_UPDATE_USER,
+                msg: msg.NO_ACCESS_UPDATE_USER
             })
         } else {
             obj.update(req.body, {
@@ -100,13 +100,13 @@ function updateInfo(req, res, next, obj) {
             }).then(function(result) {
                 if(result[0] == 0) {
                     res.json({
-                        status: 1,
-                        msg: '更新用户失败'
+                        code: code.UPDATE_USER_FAILE,
+                        msg: msg.UPDATE_USER_FAILE
                     })
                 } else {
                     res.json({
-                        status: 1,
-                        msg: '更新用户成功'
+                        code: code.UPDATE_USER_SUCC,
+                        msg: msg.UPDATE_USER_SUCC
                     })
                 }
             })
@@ -123,8 +123,8 @@ function deleteInfo(req, res, next, obj) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '无权限删除用户'
+                code: code.NO_ACCESS_DELETE_USER,
+                msg: msg.NO_ACCESS_DELETE_USER
             })
         } else {
             obj.destroy({
@@ -134,13 +134,13 @@ function deleteInfo(req, res, next, obj) {
             }).then(function(result) {
                 if(result == 0) {
                     res.json({
-                        status: 1,
-                        msg: '删除用户失败'
+                        code: code.DELETE_USER_FAILE,
+                        msg: msg.DELETE_USER_FAILE
                     })
                 } else {
                     res.json({
-                        status: 1,
-                        msg: '删除用户成功'
+                        code: code.DELETE_USER_SUCC,
+                        msg: msg.DELETE_USER_SUCC
                     })
                 }
             })
