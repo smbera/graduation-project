@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
-import { Form, Button, Select } from 'antd';
+import { Button, Select } from 'antd';
 import {  adminOpenFunction } from '../../reducers/index'
 
 const Option = Select.Option;
@@ -53,9 +53,7 @@ class OpenCoursesSelect extends Component {
     }
 }
 
-const WrappedOpenCoursesSelect = Form.create()(OpenCoursesSelect);
-
-WrappedOpenCoursesSelect.propTypes = { 
+OpenCoursesSelect.propTypes = { 
     onAdminOpenFunction: PropTypes.func,
 } 
 
@@ -75,4 +73,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(WrappedOpenCoursesSelect)
+)(OpenCoursesSelect)
