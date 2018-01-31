@@ -95,8 +95,8 @@ router.get("/getSelectCoursesInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.LOGIN_FAILE,
+                msg: msg.LOGIN_FAILE
             })
         } else {
             studentsCourses.findAll({
@@ -107,8 +107,8 @@ router.get("/getSelectCoursesInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有选择任何课程'
+                        code: code.NO_COURSE_CAN_SELECT,
+                        msg: msg.NO_COURSE_CAN_SELECT
                     })
                 } else {
                 	var coursesInfoIdArr = [];
@@ -159,7 +159,8 @@ router.get("/getSelectCoursesInfo", function(req, res, next) {
 				            	}
 
 		                    	res.json({
-		                            code: 1,
+		                            code: code.GET_CAN_SELECT_SUCC,
+                                    msg: msg.GET_CAN_SELECT_SUCC,
 		                            data: result
 		                        })
 		                    })

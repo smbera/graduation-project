@@ -46,7 +46,8 @@ const ADMIN_SAVE_STUDENTS_INFO = 'ADMIN_SAVE_STUDENTS_INFO';
 const ADMIN_SAVE_TEACHERS_INFO = 'ADMIN_SAVE_TEACHERS_INFO';
 const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
 const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
-const STUDENT_GET_COURSES = 'STUDENT_GET_COURSES';
+const STUDENT_GET_ALL_COURSES = 'STUDENT_GET_ALL_COURSES';
+const STUDENT_GET_SELECT_COURSES = 'STUDENT_GET_SELECT_COURSES';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 
 // reducer
@@ -57,7 +58,8 @@ export default function (state, action) {
             identity: '1', // 学生为1，教师为2, 管理员为3
             adminGetStudentsInfo: [],
             adminGetTeachersInfo: [],
-            studentGetCoursesInfo: [],
+            studentGetAllCoursesInfo: [],
+            studentGetSelectCoursesInfo: [],
         }
     }
     switch (action.type) {
@@ -115,13 +117,15 @@ export default function (state, action) {
         case ADMIN_DELETE_TEACHERS_INFO:
             tempData = [...state.adminGetTeachersInfo]
             return { ...state, adminGetTeachersInfo: tempData.filter(item => action.id !== item.id) }
-        case STUDENT_GET_COURSES:
-            return { ...state, studentGetCoursesInfo: action.data }
+        case STUDENT_GET_ALL_COURSES:
+            return { ...state, studentGetAllCoursesInfo: action.data }
+        case STUDENT_GET_SELECT_COURSES:
+            return { ...state, studentGetSelectCoursesInfo: action.data }
         case STUDENT_SELECT_COURSES:
-            tempData = [...state.studentGetCoursesInfo]
+            tempData = [...state.studentGetAllCoursesInfo]
             target = tempData.filter(item => action.id === item.id)[0];
             target.selected = true;
-            return { ...state, studentGetCoursesInfo: tempData }
+            return { ...state, studentGetAllCoursesInfo: tempData }
         default:
             return state
     }
@@ -522,15 +526,21 @@ export const adminOpenFunction = (functionType, obj) => {
     }
 }
 
-function studentGetCoursesInfoSucc(data) {
-    return { type: STUDENT_GET_COURSES, data }
+function studentGetAllCoursesInfoSucc(data) {
+    return { type: STUDENT_GET_ALL_COURSES, data }
 }
 
-function getStudentGetCoursesInfo() {
+function studentGetSelectCoursesInfoSucc(data) {
+    return { type: STUDENT_GET_SELECT_COURSES, data }
+}
+
+
+function getStudentGetCoursesInfo(functionType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
+        let path = functionType === 'getAllCoursesInfo' ? 'getAllCoursesInfo' : 'getSelectCoursesInfo'
         $.ajax({
-            url:`${SERVER_PATH}/${STUDENTS_INFO}/getAllCoursesInfo`,
+            url:`${SERVER_PATH}/${STUDENTS_INFO}/${path}`,
             type: 'get',
             data: {
                 'studentId': userInfo.userName,
@@ -539,21 +549,24 @@ function getStudentGetCoursesInfo() {
             async: false,
             success: function (response) {
                 let msg = response.msg;
-                if(response.code === status.NO_COURSE_CAN_SELECT) {
+                if(response.code === status.NO_COURSE_CAN_SELECT || response.code === status.LOGIN_FAILE) {
                     message.error(msg);
                 } else if(response.code === status.GET_CAN_SELECT_SUCC) {
-                    message.success(msg); 
-                    console.log(response);
-                    dispatch(studentGetCoursesInfoSucc(response.data))
+                    message.success(msg);
+                    if(functionType === 'getAllCoursesInfo') {
+                        dispatch(studentGetAllCoursesInfoSucc(response.data))
+                    } else {
+                        dispatch(studentGetSelectCoursesInfoSucc(response.data))
+                    }
                 }
             }
         });
     }
 }
 
-export const studentGetCoursesInfo = () => {
+export const studentGetCoursesInfo = (functionType) => {
     return (dispatch, getState) => {
-        return dispatch(getStudentGetCoursesInfo())
+        return dispatch(getStudentGetCoursesInfo(functionType))
     }
 }
 

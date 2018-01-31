@@ -5,7 +5,7 @@ import { Table, Form, Button } from 'antd';
 import { studentGetCoursesInfo, studentSelectCourse } from '../../reducers/index'
 
 
-class SelectCourses extends Component {
+class MyCourses extends Component {
     constructor(props) {
         super(props);
         this.columns = [{
@@ -26,7 +26,7 @@ class SelectCourses extends Component {
         }, {
             title: '课程介绍',
             dataIndex: 'desc',
-            width: '10%',
+            width: '16%',
             render: (text) => <div>{text}</div>
         }, {
             title: '学时',
@@ -41,44 +41,21 @@ class SelectCourses extends Component {
         }, {
             title: '上课时间',
             dataIndex: 'schoolTime',
-            width: '12%',
+            width: '16%',
             render: (text) => <div>{text}</div>
         }, {
             title: '上课地点',
             dataIndex: 'schoolAddress',
-            width: '12%',
-            render: (text) => <div>{text}</div>
-        }, {
-            title: '年级',
-            dataIndex: 'grade',
-            width: '7%',
-            render: (text) => <div>{text}</div>
-        }, {
-            title: '专业号',
-            dataIndex: 'majorId',
-            width: '8%',
-            render: (text) =><div>{text}</div>
-        }, {
-            title: '专业名',
-            dataIndex: 'majorName',
-            width: '15%',
+            width: '16%',
             render: (text) => <div>{text}</div>
         }, {
             title: '操作栏',
             dataIndex: 'operation',
             render: (text, record) => {
-                const {selected} = record;
                 return (
-                    <div className="editable-row-operations">
-                        {selected 
-                            ? <span>
-                                <Button type="primary" size="small" disabled >已选择</Button>
-                            </span>
-                            : <span>
-                                <Button type="primary" size="small" onClick={() => this.props.onStudentSelectCourse(record.id)}>选择</Button>
-                            </span>
-                        }
-                    </div>
+                    <span>
+                        <Button type="primary" size="small" onClick={() => this.props.onStudentSelectCourse(record.id)}>退选</Button>
+                    </span>
                 );
             },
         }];
@@ -87,29 +64,29 @@ class SelectCourses extends Component {
     render() {
         return (
             <div className='select-courses-wrap'>
-                <Table bordered dataSource={this.props.studentGetAllCoursesInfo} columns={this.columns}/>
+                <Table bordered dataSource={this.props.studentGetSelectCoursesInfo} columns={this.columns}/>
             </div>
         )
     }
 
     componentWillMount() {
         if(this.props.onStudentGetCoursesInfo) {
-            this.props.onStudentGetCoursesInfo('getAllCoursesInfo');
+            this.props.onStudentGetCoursesInfo('getSelectCoursesInfo');
         }
     }
 }
 
-const WrappedSelectCourses = Form.create()(SelectCourses);
+const WrappedMyCourses = Form.create()(MyCourses);
 
-WrappedSelectCourses.propTypes = { 
-    studentGetAllCoursesInfo: PropTypes.array,
+WrappedMyCourses.propTypes = { 
+    studentGetSelectCoursesInfo: PropTypes.array,
     onStudentGetCoursesInfo: PropTypes.func,
     onStudentSelectCourse: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
     return {
-        studentGetAllCoursesInfo: state.studentGetAllCoursesInfo,
+        studentGetSelectCoursesInfo: state.studentGetSelectCoursesInfo,
     }
 }
 
@@ -127,4 +104,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(WrappedSelectCourses)
+)(WrappedMyCourses)
