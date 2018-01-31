@@ -241,8 +241,8 @@ router.get("/getExamsInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.NO_ACCESS_GET_EXAM_INFO,
+                msg: msg.NO_ACCESS_GET_EXAM_INFO
             })
         } else {
             studentsCourses.findAll({
@@ -253,8 +253,8 @@ router.get("/getExamsInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有选择任何课程，所以无考试安排'
+                        code: code.NO_EXAM_INFO_FOR_NO_SELECT_COURSES,
+                        msg: msg.NO_EXAM_INFO_FOR_NO_SELECT_COURSES
                     })
                 } else {
                     var tempArr = [];
@@ -276,12 +276,13 @@ router.get("/getExamsInfo", function(req, res, next) {
 
                         if(tempArr.length == 0) {
                         	res.json({
-                                code: 1,
-                                msg: '无考试安排'
+                                code: code.NO_EXAM_INFO,
+                                msg: msg.NO_EXAM_INFO
                             })
                         } else {
                         	res.json({
-                                code: 1,
+                                code: code.GET_EXAM_INFO_FAILE,
+                                msg: msg.GET_EXAM_INFO_FAILE,
                                 data: tempArr
                             })
                         }

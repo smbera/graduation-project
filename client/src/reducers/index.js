@@ -48,6 +48,7 @@ const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
 const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
 const STUDENT_GET_ALL_COURSES = 'STUDENT_GET_ALL_COURSES';
 const STUDENT_GET_SELECT_COURSES = 'STUDENT_GET_SELECT_COURSES';
+const STUDENT_GET_EXAMS = 'STUDENT_GET_EXAMS';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 
@@ -61,6 +62,7 @@ export default function (state, action) {
             adminGetTeachersInfo: [],
             studentGetAllCoursesInfo: [],
             studentGetSelectCoursesInfo: [],
+            studentGetExamsInfo: [],
         }
     }
     switch (action.type) {
@@ -122,6 +124,8 @@ export default function (state, action) {
             return { ...state, studentGetAllCoursesInfo: action.data }
         case STUDENT_GET_SELECT_COURSES:
             return { ...state, studentGetSelectCoursesInfo: action.data }
+        case STUDENT_GET_EXAMS:
+            return { ...state, studentGetExamsInfo: action.data }
         case STUDENT_SELECT_COURSES:
             tempData = [...state.studentGetAllCoursesInfo]
             target = tempData.filter(item => action.id === item.id)[0];
@@ -538,11 +542,22 @@ function studentGetSelectCoursesInfoSucc(data) {
     return { type: STUDENT_GET_SELECT_COURSES, data }
 }
 
+function studentGetExamsInfoSucc(data) {
+    return { type: STUDENT_GET_EXAMS, data }
+}
 
 function getStudentGetCoursesInfo(functionType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
-        let path = functionType === 'getAllCoursesInfo' ? 'getAllCoursesInfo' : 'getSelectCoursesInfo'
+        let path;
+        if(functionType === 'getAllCoursesInfo') {
+            path = 'getAllCoursesInfo'
+        } else if(functionType === 'getSelectCoursesInfo') {
+            path = 'getSelectCoursesInfo'
+        } else if(functionType === 'getExamsInfo') {
+            path = 'getExamsInfo'
+        }
+
         $.ajax({
             url:`${SERVER_PATH}/${STUDENTS_INFO}/${path}`,
             type: 'get',
@@ -553,14 +568,18 @@ function getStudentGetCoursesInfo(functionType) {
             async: false,
             success: function (response) {
                 let msg = response.msg;
-                if(response.code === status.NO_COURSE_CAN_SELECT || response.code === status.LOGIN_FAILE) {
+                if(response.code === status.NO_COURSE_CAN_SELECT || response.code === status.LOGIN_FAILE 
+                    || response.code === status.NO_ACCESS_GET_EXAM_INFO || response.code === status.NO_EXAM_INFO_FOR_NO_SELECT_COURSES 
+                    || response.code === status.NO_EXAM_INFO) {
                     message.error(msg);
-                } else if(response.code === status.GET_CAN_SELECT_SUCC) {
+                } else if(response.code === status.GET_CAN_SELECT_SUCC || response.code === status.GET_EXAM_INFO_FAILE) {
                     message.success(msg);
                     if(functionType === 'getAllCoursesInfo') {
                         dispatch(studentGetAllCoursesInfoSucc(response.data))
-                    } else {
+                    } else if(functionType === 'getSelectCoursesInfo'){
                         dispatch(studentGetSelectCoursesInfoSucc(response.data))
+                    } else if(functionType === 'getExamsInfo') {
+                        dispatch(studentGetExamsInfoSucc(response.data))
                     }
                 }
             }
