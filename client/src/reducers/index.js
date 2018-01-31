@@ -12,36 +12,6 @@ const ADMINS_INFO = 'adminsInfo';
 let tempData,
     target;
 
-function ajaxSignIn(identityType, identity, userName, password, isLoginWithCookie, dispatch) {
-    $.ajax({
-        url:`${SERVER_PATH}/${identityType}/signIn`,
-        type: 'post',
-        data: { 
-            'id': userName,
-            'psw': password,
-        },
-        async: false,
-        success: function (response) {
-            let msg = response.msg;
-            if(response.code === status.LOGIN_SUCC) {
-                let exp = new Date();
-                exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
-                document.cookie = "identity=" + identity + ";expires=" + exp.toGMTString();
-                document.cookie = "un=" + userName + ";expires=" + exp.toGMTString();
-                document.cookie = "pw=" + password + ";expires=" + exp.toGMTString();
-
-                if(!isLoginWithCookie) {
-                    message.success(msg); 
-                }
-                dispatch(loginSucc(identity))
-            } else if(response.code === status.LOGIN_FAILE) {
-                message.error(msg);
-                dispatch(loginFaile(identity))
-            }
-        }
-    });
-}
-
 function getUserInfoFromCookie() {
     let identityReg = new RegExp("(^| )identity=([^;]*)(;|$)"),
         userNameReg = new RegExp("(^| )un=([^;]*)(;|$)"),
@@ -59,32 +29,6 @@ function getUserInfoFromCookie() {
             window.location.reload();
         },3000)
     }
-}
-
-function ajaxChangePassword(identityType, userInfo, originalPassword, confirmPassword, dispatch) {
-    $.ajax({
-        url:`${SERVER_PATH}/${identityType}/updateInfo`,
-        type: 'post',
-        data: { 
-            'id': userInfo.userName,
-            'psw': originalPassword,
-            'password': confirmPassword
-        },
-        async: false,
-        success: function (response) {
-            let msg = response.msg;
-            if(response.code === status.NO_ACCESS_UPDATE_INFO || response.code === status.UPDATE_INFO_FAILE) {
-                message.error(msg);
-            } else if(response.code === status.UPDATE_INFO_SUCC) {
-                message.success(msg); 
-                let exp = new Date();
-                exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
-                document.cookie = "identity=" + userInfo.identity + ";expires=" + exp.toGMTString();
-                document.cookie = "un=" + userInfo.userName + ";expires=" + exp.toGMTString();
-                document.cookie = "pw=" + confirmPassword + ";expires=" + exp.toGMTString();
-            }
-        }
-    });
 }
 
 // action types
@@ -182,6 +126,36 @@ function loginFaile(identity) {
     return { type: LOGIN_FAILE, identity }
 }
 
+function ajaxSignIn(identityType, identity, userName, password, isLoginWithCookie, dispatch) {
+    $.ajax({
+        url:`${SERVER_PATH}/${identityType}/signIn`,
+        type: 'post',
+        data: { 
+            'id': userName,
+            'psw': password,
+        },
+        async: false,
+        success: function (response) {
+            let msg = response.msg;
+            if(response.code === status.LOGIN_SUCC) {
+                let exp = new Date();
+                exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
+                document.cookie = "identity=" + identity + ";expires=" + exp.toGMTString();
+                document.cookie = "un=" + userName + ";expires=" + exp.toGMTString();
+                document.cookie = "pw=" + password + ";expires=" + exp.toGMTString();
+
+                if(!isLoginWithCookie) {
+                    message.success(msg); 
+                }
+                dispatch(loginSucc(identity))
+            } else if(response.code === status.LOGIN_FAILE) {
+                message.error(msg);
+                dispatch(loginFaile(identity))
+            }
+        }
+    });
+}
+
 function postLoginInfo(identity, userName, password, isLoginWithCookie) {
     return function (dispatch) {
         if(identity === '1') {
@@ -198,6 +172,32 @@ export const login = (identity, userName, password, isLoginWithCookie) => {
     return (dispatch, getState) => {
         return dispatch(postLoginInfo(identity, userName, password, isLoginWithCookie))
     }
+}
+
+function ajaxChangePassword(identityType, userInfo, originalPassword, confirmPassword, dispatch) {
+    $.ajax({
+        url:`${SERVER_PATH}/${identityType}/updateInfo`,
+        type: 'post',
+        data: { 
+            'id': userInfo.userName,
+            'psw': originalPassword,
+            'password': confirmPassword
+        },
+        async: false,
+        success: function (response) {
+            let msg = response.msg;
+            if(response.code === status.NO_ACCESS_UPDATE_INFO || response.code === status.UPDATE_INFO_FAILE) {
+                message.error(msg);
+            } else if(response.code === status.UPDATE_INFO_SUCC) {
+                message.success(msg); 
+                let exp = new Date();
+                exp.setTime(exp.getTime() + 1000 * 60 * 30); // 有效期为30分钟
+                document.cookie = "identity=" + userInfo.identity + ";expires=" + exp.toGMTString();
+                document.cookie = "un=" + userInfo.userName + ";expires=" + exp.toGMTString();
+                document.cookie = "pw=" + confirmPassword + ";expires=" + exp.toGMTString();
+            }
+        }
+    });
 }
 
 function postPassword(originalPassword, confirmPassword) {
