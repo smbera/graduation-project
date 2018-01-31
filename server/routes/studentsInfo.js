@@ -181,8 +181,8 @@ router.get("/getScoreInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.NO_ACCESS_GET_SCORE_INFO,
+                msg: msg.NO_ACCESS_GET_SCORE_INFO
             })
         } else {
             studentsCourses.findAll({
@@ -193,8 +193,8 @@ router.get("/getScoreInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有选择任何课程，所以无成绩查询'
+                        code: code.NO_SCORE_INFO_FOR_NO_SELECT_COURSES,
+                        msg: msg.NO_SCORE_INFO_FOR_NO_SELECT_COURSES
                     })
                 } else {
                 	var coursesInfoArr = result,
@@ -222,8 +222,9 @@ router.get("/getScoreInfo", function(req, res, next) {
 		            	}
 
                     	res.json({
-                            code: 1,
-                            data: result
+                            code: code.GET_SCORE_INFO_SUCC,
+                            msg: msg.GET_SCORE_INFO_SUCC,
+                            data: result 
                         })
                     })
                 }
@@ -281,8 +282,8 @@ router.get("/getExamsInfo", function(req, res, next) {
                             })
                         } else {
                         	res.json({
-                                code: code.GET_EXAM_INFO_FAILE,
-                                msg: msg.GET_EXAM_INFO_FAILE,
+                                code: code.GET_EXAM_INFO_SUCC,
+                                msg: msg.GET_EXAM_INFO_SUCC,
                                 data: tempArr
                             })
                         }
