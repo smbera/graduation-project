@@ -334,4 +334,35 @@ router.post("/addTeachersAssessment", function(req, res, next) {
     }).catch(next);
 });
 
+router.post("/selectedCourseInfo", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.body.studentId,
+            password: req.body.studentPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: 001,
+                msg: '无权限选课，请重新登录后再操作'
+            })
+        } else {
+            studentsCourses.create(req.body).then(function(result) {
+                if(result == null) {
+                    res.json({
+                        code: code.ADD_USER_FAILE,
+                        msg: msg.ADD_USER_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.ADD_USER_SUCC,
+                        msg: msg.ADD_USER_SUCC,
+                        data: result
+                    })
+                }
+            })
+        }
+    }).catch(next);
+});
+
 module.exports = router;
