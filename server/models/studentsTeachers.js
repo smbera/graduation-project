@@ -15,6 +15,15 @@ module.exports = function(sequelize, DataTypes) {
         },
         isOpen: {
             type: DataTypes.STRING
+        },
+        courseId: {
+            type: DataTypes.DOUBLE
+        },
+        students_info_id: {
+            type: DataTypes.DOUBLE
+        },
+        teachers_info_id: {
+            type: DataTypes.DOUBLE
         }
     }, {
         underscored: true, //额外字段以下划线来分割

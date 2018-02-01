@@ -357,9 +357,35 @@ router.post("/selectedCourseInfo", function(req, res, next) {
                         msg: msg.SELECT_COURSE_FAILE
                     })
                 } else {
-                    res.json({
-                        code: code.SELECT_COURSE_SUCC,
-                        msg: msg.SELECT_COURSE_SUCC
+                    coursesInfo.findOne({
+                        attributes: ['teachers_info_id'],
+                        where: {
+                            id: req.body.courses_info_id
+                        }
+                    }).then(function(result) {
+                        if(result == null) {
+                            
+                        } else {
+                            var tempObj= {
+                                isOpen: 'false',
+                                courseId: req.body.courses_info_id,
+                                students_info_id: req.body.studentId,
+                                teachers_info_id: result.dataValues.teachers_info_id
+                            }
+                            studentsTeachers.create(tempObj).then(function(result) {
+                                if(result == null) {
+                                    res.json({
+                                        code: code.SELECT_COURSE_FAILE,
+                                        msg: msg.SELECT_COURSE_FAILE
+                                    })
+                                } else {
+                                    res.json({
+                                        code: code.SELECT_COURSE_SUCC,
+                                        msg: msg.SELECT_COURSE_SUCC
+                                    })
+                                }
+                            })
+                        }
                     })
                 }
             })
@@ -392,9 +418,22 @@ router.post("/deleteSelectedCourseInfo", function(req, res, next) {
                         msg: msg.DELETE_SELECT_COURSE_FAILE
                     })
                 } else {
-                    res.json({
-                        code: code.DELETE_SELECT_COURSE_SUCC,
-                        msg: msg.DELETE_SELECT_COURSE_SUCC
+                    studentsTeachers.destroy({
+                        where: {
+                            courseId: req.body.courses_info_id
+                        }
+                    }).then(function(result) {
+                        if(result == 0) {
+                            res.json({
+                                code: code.DELETE_SELECT_COURSE_FAILE,
+                                msg: msg.DELETE_SELECT_COURSE_FAILE
+                            })
+                        } else {
+                            res.json({
+                                code: code.DELETE_SELECT_COURSE_SUCC,
+                                msg: msg.DELETE_SELECT_COURSE_SUCC
+                            })
+                        }
                     })
                 }
             })

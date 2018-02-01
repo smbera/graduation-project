@@ -19,8 +19,8 @@ teachersInfo.belongsTo(adminsInfo);
 studentsInfo.belongsToMany(coursesInfo, {through: "studentsCourses"});
 coursesInfo.belongsToMany(studentsInfo, {through: 'studentsCourses'});
 
-studentsInfo.belongsToMany(teachersInfo, {through: "studentsTeachers"});
-teachersInfo.belongsToMany(studentsInfo, {through: 'studentsTeachers'});
+// studentsInfo.belongsToMany(teachersInfo, {through: "studentsTeachers"});
+// teachersInfo.belongsToMany(studentsInfo, {through: 'studentsTeachers'});
 
 teachersInfo.hasMany(coursesInfo);
 coursesInfo.belongsTo(teachersInfo);
