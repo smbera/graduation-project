@@ -22,8 +22,8 @@ router.get("/getReleaseCoursesInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
             coursesInfo.findAll({
@@ -34,12 +34,13 @@ router.get("/getReleaseCoursesInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有发布任何课程'
+                       code: code.NO_RELEASE_COURSES,
+                        msg: msg.NO_RELEASE_COURSES
                     })
                 } else {
                     res.json({
-                        code: 1,
+                        code: code.GET_INFO_SUCC,
+                        msg: msg.GET_INFO_SUCC,
                         data: result
                     })
                 }
@@ -239,15 +240,23 @@ router.post("/addCourses", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
             coursesInfo.create(req.body).then(function(result) {
-                res.json({
-                    code: 001,
-                    msg: 'addCourses success'
-                });
+                if(result == null) {
+                    res.json({
+                        code: code.RELEASE_COURSES_FAILE,
+                        msg: msg.RELEASE_COURSES_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.RELEASE_COURSES_SUCC,
+                        msg: msg.RELEASE_COURSES_SUCC,
+                        data: result
+                    })
+                }
             });
         }
     }).catch(next);
@@ -262,24 +271,36 @@ router.post("/deleteCourses", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
-            coursesInfo.destroy({
-                where: {
-                    id: req.body.courseId
-                }
-            }).then(function(result) {
+            Promise.all([
+                coursesInfo.destroy({
+                    where: {
+                        id: req.body.courseId
+                    }
+                }),
+                studentsCourses.destroy({
+                    where: {
+                        courses_info_id: req.body.courseId
+                    }
+                }),
+                studentsTeachers.destroy({
+                    where: {
+                        courseId: req.body.courseId
+                    }
+                })
+            ]).then(function(result) {
                 if(result == 0) {
                     res.json({
-                        status: 1,
-                        data: 'deleteCourses faile'
+                        code: code.DELETE_RELEASE_COURSES_FAILE,
+                        msg: msg.DELETE_RELEASE_COURSES_FAILE
                     });
                 } else {
                     res.json({
-                        status: 1,
-                        data: 'deleteCourses success'
+                        code: code.DELETE_RELEASE_COURSES_SUCC,
+                        msg: msg.DELETE_RELEASE_COURSES_SUCC
                     });
                 }
             })

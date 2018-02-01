@@ -57,6 +57,9 @@ const STUDENT_GET_TEACHERS_ASSESSMENT = 'STUDENT_GET_TEACHERS_ASSESSMENT';
 const STUDENT_GET_IS_CAN_ADD_ASSESSMENT = 'STUDENT_GET_IS_CAN_ADD_ASSESSMENT';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
+const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
+const ADD_COURSES_INFO = 'ADD_COURSES_INFO';
+const DELETE_COURSES_INFO = 'DELETE_COURSES_INFO';
 
 // reducer
 export default function (state, action) {
@@ -72,6 +75,7 @@ export default function (state, action) {
             studentGetScoreInfo: [],
             studentGetTeachersAssessmentInfo: [],
             isCanAddAssessment: false,
+            getReleaseCoursesInfo: [],
         }
     }
     switch (action.type) {
@@ -164,6 +168,16 @@ export default function (state, action) {
         case STUDENT_DELETE_SELECT_COURSES:
             tempData = [...state.studentGetSelectCoursesInfo]
             return { ...state, studentGetSelectCoursesInfo: tempData.filter(item => action.id !== item.id) }
+        case GET_RELEASE_COURSES_INFO:
+            return { ...state, getReleaseCoursesInfo: action.data}
+        case ADD_COURSES_INFO:
+            tempData = [...state.getReleaseCoursesInfo]
+            tempData.unshift(action.data)
+            
+            return { ...state, getReleaseCoursesInfo: tempData }
+        case DELETE_COURSES_INFO:
+            tempData = [...state.getReleaseCoursesInfo]
+            return { ...state, getReleaseCoursesInfo: tempData.filter(item => action.id !== item.id) }
         default:
             return state
     }
@@ -753,5 +767,111 @@ function postStudentDeleteSelectCourse(id) {
 export const studentDeleteSelectCourse = (id) => {
     return (dispatch, getState) => {
         return dispatch(postStudentDeleteSelectCourse(id))
+    }
+}
+
+function ReleaseCoursesInfoSucc(data) {
+    return { type: GET_RELEASE_COURSES_INFO, data }
+}
+
+function getTeacherGetInfo(identityType) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        let path;
+        if(identityType === 'getReleaseCoursesInfo') {
+            path = 'getReleaseCoursesInfo'
+        }
+        $.ajax({
+            url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
+            type: 'get',
+            data: {
+                'teacherId': userInfo.userName,
+                'teacherPsw': userInfo.password
+            },
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.USER_NO_EXIST || response.code === status.NO_RELEASE_COURSES) {
+                    message.error(msg);
+                } else if(response.code === status.GET_INFO_SUCC) {
+                    message.success(msg); 
+                    if(identityType === 'getReleaseCoursesInfo') {
+                        dispatch(ReleaseCoursesInfoSucc(response.data))
+                    }
+                }
+            }
+        });
+    }
+}
+
+export const teacherGetInfo = (identityType) => {
+    return (dispatch, getState) => {
+        return dispatch(getTeacherGetInfo(identityType))
+    }
+}
+
+function addCoursesSucc(data) {
+    return { type: ADD_COURSES_INFO, data }
+}
+
+function deleteCoursesSucc(id) {
+    return { type: DELETE_COURSES_INFO, id }
+}
+
+function postTeacherPostInfo(identityType, obj) {
+    return function (dispatch) {
+        let userInfo = getUserInfoFromCookie();
+        let tempObj,
+            path;
+        if(identityType === 'addCourses') {
+            tempObj = {
+                'teachers_info_id': userInfo.userName,
+                'teacherPsw': userInfo.password,
+                'name': obj.name,
+                'desc': obj.desc,
+                'period': obj.period,
+                'credit': obj.credit,
+                'schoolTime': obj.schoolTime,
+                'schoolAddress': obj.schoolAddress,
+                'examTime': obj.examTime,
+                'examAddress': obj.examAddress,
+                'grade': obj.grade,
+                'majorId': obj.majorId,
+                'majorName': obj.majorName
+            }
+            path = 'addCourses';
+        } else if(identityType === 'deleteCourses') {
+            tempObj = {
+                'teacherId': userInfo.userName,
+                'teacherPsw': userInfo.password,
+                'courseId': obj
+            }
+            path = 'deleteCourses';
+        }
+        $.ajax({
+            url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
+            type: 'post',
+            data: tempObj,
+            async: false,
+            success: function (response) {
+                let msg = response.msg;
+                if(response.code === status.USER_NO_EXIST || response.code === status.RELEASE_COURSES_FAILE || response.code === status.DELETE_RELEASE_COURSES_FAILE) {
+                    message.error(msg);
+                } else if(response.code === status.RELEASE_COURSES_SUCC || response.code === status.DELETE_RELEASE_COURSES_SUCC) {
+                    message.success(msg); 
+                    if(identityType === 'addCourses') {
+                        dispatch(addCoursesSucc(response.data))
+                    } else if(identityType === 'deleteCourses') {
+                        dispatch(deleteCoursesSucc(obj))
+                    }
+                }
+            }
+        });
+    }
+}
+
+export const teacherPostInfo = (identityType, obj) => {
+    return (dispatch, getState) => {
+        return dispatch(postTeacherPostInfo(identityType, obj))
     }
 }
