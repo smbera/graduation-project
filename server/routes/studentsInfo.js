@@ -371,6 +371,48 @@ router.get("/getTeachersAssessmentInfo", function(req, res, next) {
     }).catch(next);
 });
 
+router.get("/getIsCanAddAssessment", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.query.studentId,
+            password: req.query.studentPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO,
+                msg: msg.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO
+            })
+        } else {
+            studentsTeachers.findOne({
+                attributes: ['isOpen'],
+                where: {
+                    students_info_id: req.query.studentId
+                }
+            }).then(function(result) {
+                if(result == null) {
+                    res.json({
+                        code: code.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES,
+                        msg: msg.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES
+                    })
+                } else {
+                    if(result.isOpen == 'false') {
+                        res.json({
+                            code: code.CAN_NOT_ADD_ASSESSMENT_INFO,
+                            msg: msg.CAN_NOT_ADD_ASSESSMENT_INFO
+                        })
+                    } else if(result.isOpen == 'true') {
+                        res.json({
+                            code: code.CAN_ADD_ASSESSMENT_INFO,
+                            msg: msg.CAN_ADD_ASSESSMENT_INFO
+                        })
+                    }
+                }
+            })
+        }
+    }).catch(next);
+});
+
 router.post("/signIn", function(req, res, next) {
     common.signIn(req, res, next, studentsInfo)
 });

@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
+import { studentGetCoursesInfo } from '../../reducers/index'
 import ChangePassword from '../component/ChangePassword'
+import SelectCourses from './SelectCourses'
+import MyCourses from './MyCourses'
+import MyCoursesSchedule from './MyCoursesSchedule'
+import ExamInfo from './ExamInfo'
+import ScoreInfo from './ScoreInfo'
+import TeachersAssessment from './TeachersAssessment'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
@@ -22,21 +29,60 @@ class StudentsIndex extends Component {
             key: key
         })
 
-        // 清除所有cookie
-        if(key === '8') {
-            let keys = document.cookie.match(/[^ =;]+(?==)/g);  
-            if(keys) {  
-                for(let i = keys.length; i--;)  
-                    document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
-            }  
-            window.location.reload();
-        }
+        
     }
 
     render() {
         let selectMenu = () => {
             if(this.state.key === '1') {
                 return <ChangePassword />
+            }
+            if(this.state.key === '3') {
+                return <SelectCourses />
+            }
+            if(this.state.key === '4') {
+                return <MyCourses />
+            }
+            if(this.state.key === '5') {
+                return <MyCoursesSchedule />
+            }
+            if(this.state.key === '6') {
+                return <ExamInfo />
+            }
+            if(this.state.key === '7') {
+                return <ScoreInfo />
+            }
+            if(this.state.key === '8') {
+                return <TeachersAssessment />
+            }
+
+            // 清除所有cookie
+            if(this.state.key === '9') {
+                let keys = document.cookie.match(/[^ =;]+(?==)/g);  
+                if(keys) {  
+                    for(let i = keys.length; i--;)  
+                        document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
+                }  
+                window.location.reload();
+            }
+            
+        }
+
+        let meunList = () => {
+            if(this.props.isCanAddAssessment === true) {
+                return (
+                    <Menu.Item key="8">
+                        <Icon type="line-chart"/>
+                        <span>教学质量评价</span>
+                    </Menu.Item>
+                    )
+            } else {
+                return (
+                    <Menu.Item key="8" disabled>
+                        <Icon type="line-chart"/>
+                        <span>教学质量评价</span>
+                    </Menu.Item>
+                    )
             }
         }
 
@@ -62,22 +108,25 @@ class StudentsIndex extends Component {
                             <span>选择课程</span>
                         </Menu.Item>
                         <Menu.Item key="4">
-                            <Icon type="export" />
-                            <span>我的课表</span>
+                            <Icon type="switcher" />
+                            <span>我的课程</span>
                         </Menu.Item>
                         <Menu.Item key="5">
                             <Icon type="export" />
-                            <span>考试安排</span>
+                            <span>我的课表</span>
                         </Menu.Item>
                         <Menu.Item key="6">
+                            <Icon type="export" />
+                            <span>考试安排</span>
+                        </Menu.Item>
+                        <Menu.Item key="7">
                             <Icon type="switcher" />
                             <span>查看成绩</span>
                         </Menu.Item>
-                        <Menu.Item key="7">
-                            <Icon type="line-chart" />
-                            <span>教学质量评价</span>
-                        </Menu.Item>
-                        <Menu.Item key="8">
+                        {
+                            meunList()
+                        }
+                        <Menu.Item key="9">
                             <Icon type="logout" />
                             <span>退出登录</span>
                         </Menu.Item>
@@ -100,21 +149,30 @@ class StudentsIndex extends Component {
             </Layout>
         )
     }
+
+    componentWillMount() {
+        if(this.props.onStudentGetCoursesInfo) {
+            this.props.onStudentGetCoursesInfo('getIsCanAddAssessment');
+        }
+    }
 }
 
 StudentsIndex.propTypes = { 
-    languageType: PropTypes.string,
+    isCanAddAssessment: PropTypes.bool,
+    onStudentGetCoursesInfo: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
     return {
-        
+        isCanAddAssessment: state.isCanAddAssessment,
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        
+        onStudentGetCoursesInfo: (functionType) => {
+            dispatch(studentGetCoursesInfo(functionType))
+        },
     }
 }
 
