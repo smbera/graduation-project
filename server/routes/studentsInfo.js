@@ -327,7 +327,8 @@ router.get("/getTeachersAssessmentInfo", function(req, res, next) {
                         tempTeacherIdArr.push(item.teachers_info_id)
                         tempTeachersAssessmentInfo.push({
                             score: item.score,
-                            content: item.content
+                            content: item.content,
+                            teachers_info_id: item.teachers_info_id
                         })
                     })
                     coursesInfo.findAll({
@@ -387,25 +388,26 @@ router.post("/addTeachersAssessment", function(req, res, next) {
     }).then(function(result) {
     	if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户名或密码错误，无权限评教，请重新登录后再操作'
+                code: code.NO_ACCESS_ADD_TEACHERS_ASSESSMENT_INFO,
+                msg: msg.NO_ACCESS_ADD_TEACHERS_ASSESSMENT_INFO
             })
         } else {
         	studentsTeachers.update(req.body, {
                 where: {
                     students_info_id: req.body.studentId,
-                    teachers_info_id: req.body.teacherId
+                    teachers_info_id: req.body.teacherId,
+                    courseId: req.body.course_id
                 }
             }).then(function(result) {
                 if(result[0] == 0) {
                     res.json({
-                        status: 1,
-                        msg: '评教失败'
+                        code: code.ADD_TEACHERS_ASSESSMENT_INFO_FAILE,
+                        msg: msg.ADD_TEACHERS_ASSESSMENT_INFO_FAILE
                     })
                 } else {
                     res.json({
-                        status: 1,
-                        msg: '评教成功'
+                        code: code.ADD_TEACHERS_ASSESSMENT_INFO_SUCC,
+                        msg: msg.ADD_TEACHERS_ASSESSMENT_INFO_SUCC
                     })
                 }
             })

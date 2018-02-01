@@ -40,16 +40,20 @@ const ADMIN_GET_STUDENTS_INFO = 'ADMIN_GET_STUDENTS_INFO';
 const ADMIN_GET_TEACHERS_INFO = 'ADMIN_GET_TEACHERS_INFO';
 const ADMIN_EDIT_STUDENTS_INFO = 'ADMIN_EDIT_STUDENTS_INFO';
 const ADMIN_EDIT_TEACHERS_INFO = 'ADMIN_EDIT_TEACHERS_INFO';
+const STUDENT_EDIT_ASSESSMENT_INFO = 'STUDENT_EDIT_ASSESSMENT_INFO';
 const ADMIN_CHANGE_STUDENTS_INFO = 'ADMIN_CHANGE_STUDENTS_INFO';
 const ADMIN_CHANGE_TEACHERS_INFO = 'ADMIN_CHANGE_TEACHERS_INFO';
+const STUDENT_CHANGE_ASSESSMENT_INFO = 'STUDENT_CHANGE_ASSESSMENT_INFO';
 const ADMIN_SAVE_STUDENTS_INFO = 'ADMIN_SAVE_STUDENTS_INFO';
 const ADMIN_SAVE_TEACHERS_INFO = 'ADMIN_SAVE_TEACHERS_INFO';
+const STUDENT_ADD_ASSESSMENT_INFO = 'STUDENT_ADD_ASSESSMENT_INFO';
 const ADMIN_DELETE_STUDENTS_INFO = 'ADMIN_DELETE_STUDENTS_INFO';
 const ADMIN_DELETE_TEACHERS_INFO = 'ADMIN_DELETE_TEACHERS_INFO';
 const STUDENT_GET_ALL_COURSES = 'STUDENT_GET_ALL_COURSES';
 const STUDENT_GET_SELECT_COURSES = 'STUDENT_GET_SELECT_COURSES';
 const STUDENT_GET_EXAMS = 'STUDENT_GET_EXAMS';
 const STUDENT_GET_SCORE = 'STUDENT_GET_SCORE';
+const STUDENT_GET_TEACHERS_ASSESSMENT = 'STUDENT_GET_TEACHERS_ASSESSMENT';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 
@@ -65,6 +69,7 @@ export default function (state, action) {
             studentGetSelectCoursesInfo: [],
             studentGetExamsInfo: [],
             studentGetScoreInfo: [],
+            studentGetTeachersAssessmentInfo: [],
         }
     }
     switch (action.type) {
@@ -91,6 +96,11 @@ export default function (state, action) {
             target = tempData.filter(item => action.id === item.id)[0];
             target.editable = true;
             return { ...state, adminGetStudentsInfo: tempData }
+        case STUDENT_EDIT_ASSESSMENT_INFO:
+            tempData = [...state.studentGetTeachersAssessmentInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target.editable = true;
+            return { ...state, studentGetTeachersAssessmentInfo: tempData }
         case ADMIN_EDIT_TEACHERS_INFO:
             tempData = [...state.adminGetTeachersInfo]
             target = tempData.filter(item => action.id === item.id)[0];
@@ -105,7 +115,12 @@ export default function (state, action) {
             tempData = [...state.adminGetTeachersInfo]
             target = tempData.filter(item => action.id === item.id)[0];
             target[action.column] = action.value;
-            return { ...state, adminGetTeachersInfo: tempData }  
+            return { ...state, adminGetTeachersInfo: tempData } 
+        case STUDENT_CHANGE_ASSESSMENT_INFO:
+            tempData = [...state.studentGetTeachersAssessmentInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target[action.column] = action.value;
+            return { ...state, studentGetTeachersAssessmentInfo: tempData }  
         case ADMIN_SAVE_STUDENTS_INFO:
             tempData = [...state.adminGetStudentsInfo]
             target = tempData.filter(item => action.id === item.id)[0];
@@ -116,6 +131,11 @@ export default function (state, action) {
             target = tempData.filter(item => action.id === item.id)[0];
             delete target.editable;
             return { ...state, adminGetTeachersInfo: tempData }
+        case STUDENT_ADD_ASSESSMENT_INFO:
+            tempData = [...state.studentGetTeachersAssessmentInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            delete target.editable;
+            return { ...state, studentGetTeachersAssessmentInfo: tempData }
         case ADMIN_DELETE_STUDENTS_INFO:
             tempData = [...state.adminGetStudentsInfo]
             return { ...state, adminGetStudentsInfo: tempData.filter(item => action.id !== item.id) }
@@ -130,6 +150,8 @@ export default function (state, action) {
             return { ...state, studentGetExamsInfo: action.data }
         case STUDENT_GET_SCORE:
             return { ...state, studentGetScoreInfo: action.data }
+        case STUDENT_GET_TEACHERS_ASSESSMENT:
+            return { ...state, studentGetTeachersAssessmentInfo: action.data }
         case STUDENT_SELECT_COURSES:
             tempData = [...state.studentGetAllCoursesInfo]
             target = tempData.filter(item => action.id === item.id)[0];
@@ -369,6 +391,10 @@ export const adminEditTeachersInfo = (id) => {
     return {type: ADMIN_EDIT_TEACHERS_INFO, id}
 }
 
+export const studentEditAssessmentInfo = (id) => {
+    return {type: STUDENT_EDIT_ASSESSMENT_INFO, id}
+}
+
 export const adminChangeStudentsInfo = (value, id, column) => {
     return {type: ADMIN_CHANGE_STUDENTS_INFO, value, id, column}
 }
@@ -377,12 +403,20 @@ export const adminChangeTeachersInfo = (value, id, column) => {
     return {type: ADMIN_CHANGE_TEACHERS_INFO, value, id, column}
 }
 
+export const studentChangeAssessmentInfo = (value, id, column) => {
+    return {type: STUDENT_CHANGE_ASSESSMENT_INFO, value, id, column}
+}
+
 function adminSaveStudentsInfoSucc(id) {
     return { type: ADMIN_SAVE_STUDENTS_INFO, id }
 }
 
 function adminSaveTeachersInfoSucc(id) {
     return { type: ADMIN_SAVE_TEACHERS_INFO, id }
+}
+
+function addTeachersAssessmentSucc(id) {
+    return { type: STUDENT_ADD_ASSESSMENT_INFO, id }
 }
 
 function postAdminSaveUsersInfo(identityType, obj) {
@@ -405,7 +439,7 @@ function postAdminSaveUsersInfo(identityType, obj) {
                 'majorName': obj.majorName,
                 'admins_info_id': userInfo.userName
             }
-            path = 'updateStudentsInfo';
+            path = `${ADMINS_INFO}/updateStudentsInfo`;
         } else if(identityType === 'teacher') {
             tempObj = {
                 'adminId': userInfo.userName,
@@ -419,23 +453,37 @@ function postAdminSaveUsersInfo(identityType, obj) {
                 'title': obj.title,
                 'admins_info_id': userInfo.userName
             }
-            path = 'updateTeachersInfo';
+            path = `${ADMINS_INFO}/updateTeachersInfo`;
+        } else if(identityType === 'addTeachersAssessment') {
+            tempObj = {
+                'studentId': userInfo.userName,
+                'studentPsw': userInfo.password,
+                'teacherId': obj.teachers_info_id,
+                'course_id': obj.id,
+                'score': obj.score,
+                'content': obj.content,
+                'isOpen': 'true'
+            }
+            path = `${STUDENTS_INFO}/addTeachersAssessment`;
         }
         $.ajax({
-            url:`${SERVER_PATH}/${ADMINS_INFO}/${path}`,
+            url:`${SERVER_PATH}/${path}`,
             type: 'post',
             data: tempObj,
             async: false,
             success: function (response) {
                 let msg = response.msg;
-                if(response.code === status.NO_ACCESS_UPDATE_USER || response.code === status.UPDATE_USER_FAILE) {
+                if(response.code === status.NO_ACCESS_UPDATE_USER || response.code === status.UPDATE_USER_FAILE 
+                    || response.code === status.NO_ACCESS_ADD_TEACHERS_ASSESSMENT_INFO || response.code === status.ADD_TEACHERS_ASSESSMENT_INFO_FAILE) {
                     message.error(msg);
-                } else if(response.code === status.UPDATE_USER_SUCC) {
+                } else if(response.code === status.UPDATE_USER_SUCC || response.code === status.ADD_TEACHERS_ASSESSMENT_INFO_SUCC) {
                     message.success(msg); 
                     if(identityType === 'student') {
                         dispatch(adminSaveStudentsInfoSucc(obj.id))
                     } else if(identityType === 'teacher') {
                         dispatch(adminSaveTeachersInfoSucc(obj.id))
+                    } else if(identityType === 'addTeachersAssessment') {
+                        dispatch(addTeachersAssessmentSucc(obj.id))
                     }
                 }
             }
@@ -554,6 +602,10 @@ function studentGetScoreInfoSucc(data) {
     return { type: STUDENT_GET_SCORE, data }
 }
 
+function studentGetTeachersAssessmentInfo(data) {
+    return { type: STUDENT_GET_TEACHERS_ASSESSMENT, data }
+}
+
 function getStudentGetCoursesInfo(functionType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -566,6 +618,8 @@ function getStudentGetCoursesInfo(functionType) {
             path = 'getExamsInfo'
         } else if(functionType === 'getScoreInfo') {
             path = 'getScoreInfo'
+        } else if(functionType === 'getTeachersAssessmentInfo') {
+            path = 'getTeachersAssessmentInfo'
         }
 
         $.ajax({
@@ -580,9 +634,12 @@ function getStudentGetCoursesInfo(functionType) {
                 let msg = response.msg;
                 if(response.code === status.NO_COURSE_CAN_SELECT || response.code === status.LOGIN_FAILE 
                     || response.code === status.NO_ACCESS_GET_EXAM_INFO || response.code === status.NO_EXAM_INFO_FOR_NO_SELECT_COURSES 
-                    || response.code === status.NO_EXAM_INFO || response.code === status.NO_ACCESS_GET_SCORE_INFO || response.code === status.NO_SCORE_INFO_FOR_NO_SELECT_COURSES) {
+                    || response.code === status.NO_EXAM_INFO || response.code === status.NO_ACCESS_GET_SCORE_INFO 
+                    || response.code === status.NO_SCORE_INFO_FOR_NO_SELECT_COURSES || response.code === status.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO 
+                    || response.code === status.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES) {
                     message.error(msg);
-                } else if(response.code === status.GET_CAN_SELECT_SUCC || response.code === status.GET_EXAM_INFO_SUCC || response.code === status.GET_SCORE_INFO_SUCC) {
+                } else if(response.code === status.GET_CAN_SELECT_SUCC || response.code === status.GET_EXAM_INFO_SUCC 
+                    || response.code === status.GET_SCORE_INFO_SUCC || response.code === status.GET_TEACHERS_ASSESSMENT_INFO_SUCC) {
                     message.success(msg);
                     if(functionType === 'getAllCoursesInfo') {
                         dispatch(studentGetAllCoursesInfoSucc(response.data))
@@ -592,6 +649,8 @@ function getStudentGetCoursesInfo(functionType) {
                         dispatch(studentGetExamsInfoSucc(response.data))
                     } else if(functionType === 'getScoreInfo') {            
                         dispatch(studentGetScoreInfoSucc(response.data))
+                    } else if(functionType === 'getTeachersAssessmentInfo') {
+                        dispatch(studentGetTeachersAssessmentInfo(response.data))
                     }
                 }
             }
