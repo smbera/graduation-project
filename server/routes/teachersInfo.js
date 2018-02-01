@@ -58,8 +58,8 @@ router.get("/getStudentsSelectCoursesInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
             coursesInfo.findAll({
@@ -69,18 +69,49 @@ router.get("/getStudentsSelectCoursesInfo", function(req, res, next) {
                 },
                 include: [{ 
                     model: studentsInfo, 
-                    attributes: { exclude: ['password', 'tel', 'admins_info_id'] } 
+                    attributes: { exclude: ['password', 'admins_info_id'] } 
                 }] 
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有发布任何课程'
+                        code: code.NO_RELEASE_COURSES,
+                        msg: msg.NO_RELEASE_COURSES
                     })
                 } else {
+                    var tempArr = [];
+                    for(var i = 0; i < result.length; i++) {
+                        if(result[i].studentsInfos.length != 0) {
+                            for(var j = 0; j < result[i].studentsInfos.length; j++ ) {
+                                tempArr.push({
+                                    coursesid: result[i].id ,
+                                    coursesname: result[i].name,
+                                    coursesgrade: result[i].grade,
+                                    coursesmajorId: result[i].majorId,
+                                    coursesmajorName: result[i].majorName,
+                                    studentId: result[i].studentsInfos[j].id,
+                                    studentName: result[i].studentsInfos[j].name,
+                                    studentGender: result[i].studentsInfos[j].gender,
+                                    studentTel: result[i].studentsInfos[j].tel,
+                                    studentGrade: result[i].studentsInfos[j].grade,
+                                    studentClass: result[i].studentsInfos[j].class,
+                                    studentMajorId: result[i].studentsInfos[j].majorId,
+                                    studentMajorName: result[i].studentsInfos[j].majorName
+                                })
+                            }
+                        } else {
+                            tempArr.push({
+                                coursesid: result[i].id ,
+                                coursesname: result[i].name,
+                                coursesgrade: result[i].grade,
+                                coursesmajorId: result[i].majorId,
+                                coursesmajorName: result[i].majorName,
+                            })
+                        }
+                    }
                     res.json({
-                        code: 1,
-                        data: result
+                        code: code.GET_INFO_SUCC,
+                        msg: msg.GET_INFO_SUCC,
+                        data: tempArr
                     })
                 }
             })

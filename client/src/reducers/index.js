@@ -58,6 +58,7 @@ const STUDENT_GET_IS_CAN_ADD_ASSESSMENT = 'STUDENT_GET_IS_CAN_ADD_ASSESSMENT';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
+const GET_STUDENTS_SELECT_COURSES_INFO = 'GET_STUDENTS_SELECT_COURSES_INFO';
 const ADD_COURSES_INFO = 'ADD_COURSES_INFO';
 const DELETE_COURSES_INFO = 'DELETE_COURSES_INFO';
 
@@ -76,6 +77,7 @@ export default function (state, action) {
             studentGetTeachersAssessmentInfo: [],
             isCanAddAssessment: false,
             getReleaseCoursesInfo: [],
+            getStudentsSelectCoursesInfo: [],
         }
     }
     switch (action.type) {
@@ -170,6 +172,8 @@ export default function (state, action) {
             return { ...state, studentGetSelectCoursesInfo: tempData.filter(item => action.id !== item.id) }
         case GET_RELEASE_COURSES_INFO:
             return { ...state, getReleaseCoursesInfo: action.data}
+        case GET_STUDENTS_SELECT_COURSES_INFO:
+            return { ...state, getStudentsSelectCoursesInfo: action.data}
         case ADD_COURSES_INFO:
             tempData = [...state.getReleaseCoursesInfo]
             tempData.unshift(action.data)
@@ -774,12 +778,18 @@ function ReleaseCoursesInfoSucc(data) {
     return { type: GET_RELEASE_COURSES_INFO, data }
 }
 
+function StudentsSelectCoursesInfoSucc(data) {
+    return { type: GET_STUDENTS_SELECT_COURSES_INFO, data }
+}
+
 function getTeacherGetInfo(identityType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
         let path;
         if(identityType === 'getReleaseCoursesInfo') {
             path = 'getReleaseCoursesInfo'
+        } else if(identityType === 'getStudentsSelectCoursesInfo') {
+            path = 'getStudentsSelectCoursesInfo'
         }
         $.ajax({
             url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
@@ -797,6 +807,8 @@ function getTeacherGetInfo(identityType) {
                     message.success(msg); 
                     if(identityType === 'getReleaseCoursesInfo') {
                         dispatch(ReleaseCoursesInfoSucc(response.data))
+                    } else if(identityType === 'getStudentsSelectCoursesInfo') {
+                        dispatch(StudentsSelectCoursesInfoSucc(response.data))
                     }
                 }
             }
