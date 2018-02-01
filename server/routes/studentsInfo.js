@@ -294,6 +294,82 @@ router.get("/getExamsInfo", function(req, res, next) {
     }).catch(next);
 });
 
+router.get("/getTeachersAssessmentInfo", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.query.studentId,
+            password: req.query.studentPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO,
+                msg: msg.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO
+            })
+        } else {
+            studentsTeachers.findAll({
+                attributes: ['score', 'content', 'courseId', 'teachers_info_id'],
+                where: {
+                    students_info_id: req.query.studentId
+                }
+            }).then(function(result) {
+                if(result.length == 0) {
+                    res.json({
+                        code: code.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES,
+                        msg: msg.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES
+                    })
+                } else {
+                    var tempCourseIdArr = [],
+                        tempTeacherIdArr = [],
+                        tempTeachersAssessmentInfo = [];
+                    result.forEach(function(item) {
+                        tempCourseIdArr.push(item.courseId)
+                        tempTeacherIdArr.push(item.teachers_info_id)
+                        tempTeachersAssessmentInfo.push({
+                            score: item.score,
+                            content: item.content
+                        })
+                    })
+                    coursesInfo.findAll({
+                        attributes: ['id', 'name', 'period', 'credit'],
+                        where: {
+                            id: {
+                                [Sequelize.Op.in]: tempCourseIdArr
+                            }
+                        }
+                    }).then(function(result) {
+                        var tempCourseInfo = result;
+
+                        teachersInfo.findAll({
+                            attributes: ['name', 'title'],
+                            where: {
+                                id: {
+                                    [Sequelize.Op.in]: tempTeacherIdArr
+                                }
+                            }
+                        }).then(function(result) {
+                            for(var i = 0; i < tempTeachersAssessmentInfo.length; i++) {
+                                tempTeachersAssessmentInfo[i].id = tempCourseInfo[i].id;
+                                tempTeachersAssessmentInfo[i].name = tempCourseInfo[i].name;
+                                tempTeachersAssessmentInfo[i].period = tempCourseInfo[i].period;
+                                tempTeachersAssessmentInfo[i].credit = tempCourseInfo[i].credit;
+                                tempTeachersAssessmentInfo[i].teacherName = result[i].name;
+                                tempTeachersAssessmentInfo[i].teacherTitle = result[i].title;
+                            }
+
+                            res.json({
+                                code: code.GET_TEACHERS_ASSESSMENT_INFO_SUCC,
+                                msg: msg.GET_TEACHERS_ASSESSMENT_INFO_SUCC,
+                                data: tempTeachersAssessmentInfo 
+                            })
+                        })
+                    })
+                }
+            })
+        }
+    }).catch(next);
+});
+
 router.post("/signIn", function(req, res, next) {
     common.signIn(req, res, next, studentsInfo)
 });
