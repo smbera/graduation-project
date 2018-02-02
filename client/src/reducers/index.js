@@ -59,8 +59,12 @@ const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
 const GET_STUDENTS_SELECT_COURSES_INFO = 'GET_STUDENTS_SELECT_COURSES_INFO';
+const GET_EXAM_INFO = 'GET_EXAM_INFO';
 const ADD_COURSES_INFO = 'ADD_COURSES_INFO';
 const DELETE_COURSES_INFO = 'DELETE_COURSES_INFO';
+const TEACHER_EDIT_EXAM_INFO = 'TEACHER_EDIT_EXAM_INFO';
+const TEACHER_CHANGE_EXAM_INFO = 'TEACHER_CHANGE_EXAM_INFO';
+const UPDATE_EXAMS_INFO_SUCC = 'UPDATE_EXAMS_INFO_SUCC';
 
 // reducer
 export default function (state, action) {
@@ -78,6 +82,7 @@ export default function (state, action) {
             isCanAddAssessment: false,
             getReleaseCoursesInfo: [],
             getStudentsSelectCoursesInfo: [],
+            getExamInfo: [],
         }
     }
     switch (action.type) {
@@ -174,6 +179,8 @@ export default function (state, action) {
             return { ...state, getReleaseCoursesInfo: action.data}
         case GET_STUDENTS_SELECT_COURSES_INFO:
             return { ...state, getStudentsSelectCoursesInfo: action.data}
+        case GET_EXAM_INFO:
+            return { ...state, getExamInfo: action.data}
         case ADD_COURSES_INFO:
             tempData = [...state.getReleaseCoursesInfo]
             tempData.unshift(action.data)
@@ -182,6 +189,21 @@ export default function (state, action) {
         case DELETE_COURSES_INFO:
             tempData = [...state.getReleaseCoursesInfo]
             return { ...state, getReleaseCoursesInfo: tempData.filter(item => action.id !== item.id) }
+        case TEACHER_EDIT_EXAM_INFO:
+            tempData = [...state.getExamInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target.editable = true;
+            return { ...state, getExamInfo: tempData }
+        case TEACHER_CHANGE_EXAM_INFO:
+            tempData = [...state.getExamInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            target[action.column] = action.value;
+            return { ...state, getExamInfo: tempData } 
+        case UPDATE_EXAMS_INFO_SUCC:
+            tempData = [...state.getExamInfo]
+            target = tempData.filter(item => action.id === item.id)[0];
+            delete target.editable;
+            return { ...state, getExamInfo: tempData }
         default:
             return state
     }
@@ -782,6 +804,10 @@ function StudentsSelectCoursesInfoSucc(data) {
     return { type: GET_STUDENTS_SELECT_COURSES_INFO, data }
 }
 
+function getExamsInfoSucc(data) {
+    return { type: GET_EXAM_INFO, data }
+}
+
 function getTeacherGetInfo(identityType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -790,6 +816,8 @@ function getTeacherGetInfo(identityType) {
             path = 'getReleaseCoursesInfo'
         } else if(identityType === 'getStudentsSelectCoursesInfo') {
             path = 'getStudentsSelectCoursesInfo'
+        } else if(identityType === 'getExamsInfo') {
+            path = 'getExamsInfo'
         }
         $.ajax({
             url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
@@ -809,6 +837,8 @@ function getTeacherGetInfo(identityType) {
                         dispatch(ReleaseCoursesInfoSucc(response.data))
                     } else if(identityType === 'getStudentsSelectCoursesInfo') {
                         dispatch(StudentsSelectCoursesInfoSucc(response.data))
+                    } else if(identityType === 'getExamsInfo') {
+                        dispatch(getExamsInfoSucc(response.data))
                     }
                 }
             }
@@ -828,6 +858,10 @@ function addCoursesSucc(data) {
 
 function deleteCoursesSucc(id) {
     return { type: DELETE_COURSES_INFO, id }
+}
+
+function updateExamsInfoSucc(id) {
+    return { type: UPDATE_EXAMS_INFO_SUCC, id }
 }
 
 function postTeacherPostInfo(identityType, obj) {
@@ -859,7 +893,17 @@ function postTeacherPostInfo(identityType, obj) {
                 'courseId': obj
             }
             path = 'deleteCourses';
+        } else if(identityType === 'updateExamsInfo') {
+            tempObj = {
+                'teacherId': userInfo.userName,
+                'teacherPsw': userInfo.password,
+                'courseId': obj.id,
+                'examTime': obj.examTime,
+                'examAddress': obj.examAddress
+            }
+            path = 'updateExamsInfo';
         }
+
         $.ajax({
             url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
             type: 'post',
@@ -867,14 +911,18 @@ function postTeacherPostInfo(identityType, obj) {
             async: false,
             success: function (response) {
                 let msg = response.msg;
-                if(response.code === status.USER_NO_EXIST || response.code === status.RELEASE_COURSES_FAILE || response.code === status.DELETE_RELEASE_COURSES_FAILE) {
+                if(response.code === status.USER_NO_EXIST || response.code === status.RELEASE_COURSES_FAILE 
+                    || response.code === status.DELETE_RELEASE_COURSES_FAILE || response.code === status.RELEASE_EXAM_INFO_FAILE) {
                     message.error(msg);
-                } else if(response.code === status.RELEASE_COURSES_SUCC || response.code === status.DELETE_RELEASE_COURSES_SUCC) {
+                } else if(response.code === status.RELEASE_COURSES_SUCC || response.code === status.DELETE_RELEASE_COURSES_SUCC
+                    || response.code === status.RELEASE_EXAM_INFO_SUCC) {
                     message.success(msg); 
                     if(identityType === 'addCourses') {
                         dispatch(addCoursesSucc(response.data))
                     } else if(identityType === 'deleteCourses') {
                         dispatch(deleteCoursesSucc(obj))
+                    } else if(identityType === 'updateExamsInfo') {
+                        dispatch(updateExamsInfoSucc(obj.id))
                     }
                 }
             }
@@ -886,4 +934,12 @@ export const teacherPostInfo = (identityType, obj) => {
     return (dispatch, getState) => {
         return dispatch(postTeacherPostInfo(identityType, obj))
     }
+}
+
+export const teacherEditExamInfo = (id) => {
+    return {type: TEACHER_EDIT_EXAM_INFO, id}
+}
+
+export const teacherChangeExamInfo = (value, id, column) => {
+    return {type: TEACHER_CHANGE_EXAM_INFO, value, id, column}
 }

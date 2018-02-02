@@ -199,8 +199,8 @@ router.get("/getExamsInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
             coursesInfo.findAll({
@@ -211,12 +211,13 @@ router.get("/getExamsInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 001,
-                        msg: '你还未发布任何课程'
+                        code: code.NO_RELEASE_COURSES,
+                        msg: msg.NO_RELEASE_COURSES
                     })
                 } else {
                     res.json({
-                        code: 1,
+                        code: code.GET_INFO_SUCC,
+                        msg: msg.GET_INFO_SUCC,
                         data: result
                     })
                 }
@@ -234,21 +235,27 @@ router.post("/updateExamsInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: mag.USER_NO_EXIST
             })
         } else {
-            var updateExamsInfoArr = eval(req.body.updateExamsInfo);
-            updateExamsInfoArr.forEach(function(item){
-                coursesInfo.update(item, {
-                    where: {
-                        id: item.id
-                    }
-                })
-            })
-            res.json({
-                status: 1,
-                msg: '更新用户成功'
+            coursesInfo.update(req.body, {
+                where: {
+                    teachers_info_id: req.body.teacherId,
+                    id: req.body.courseId
+                }
+            }).then(function(result) {
+                if(result[0] == 0) {
+                    res.json({
+                        code: code.RELEASE_EXAM_INFO_FAILE,
+                        msg: msg.RELEASE_EXAM_INFO_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.RELEASE_EXAM_INFO_SUCC,
+                        msg: msg.RELEASE_EXAM_INFO_SUCC
+                    })
+                }
             })
         }
     }).catch(next);
