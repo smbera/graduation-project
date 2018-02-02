@@ -1,6 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import ChangePassword from '../component/ChangePassword'
+import CoursesInfo from './CoursesInfo'
+import CheckStudentSelectedCourses from './CheckStudentSelectedCourses'
+import ReleaseExamInfo from './ReleaseExamInfo'
+import ReleaseScoreInfo from './ReleaseScoreInfo'
+import CheckAssessment from './CheckAssessment'
 import { connect } from 'react-redux'
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Sider } = Layout;
@@ -21,22 +26,37 @@ class TeachersIndex extends Component {
         this.setState({
             key: key
         })
-
-        // 清除所有cookie
-        if(key === '7') {
-            let keys = document.cookie.match(/[^ =;]+(?==)/g);  
-            if(keys) {  
-                for(let i = keys.length; i--;)  
-                    document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
-            }  
-            window.location.reload();
-        }
     }
 
   	render() {
         let selectMenu = () => {
             if(this.state.key === '1') {
                 return <ChangePassword />
+            }
+            if(this.state.key === '3') {
+                return <CoursesInfo />
+            }
+            if(this.state.key === '4') {
+                return <CheckStudentSelectedCourses />
+            }
+            if(this.state.key === '5') {
+                return <ReleaseExamInfo />
+            }
+            if(this.state.key === '6') {
+                return <ReleaseScoreInfo />
+            }
+            if(this.state.key === '7') {
+                return <CheckAssessment />
+            }
+
+            // 清除所有cookie
+            if(this.state.key === '8') {
+                let keys = document.cookie.match(/[^ =;]+(?==)/g);  
+                if(keys) {  
+                    for(let i = keys.length; i--;)  
+                        document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
+                }  
+                window.location.reload();
             }
         }
 
@@ -59,21 +79,25 @@ class TeachersIndex extends Component {
                         </Menu.Item>
                         <Menu.Item key="3">
                             <Icon type="book" />
-                            <span>发布课程</span>
+                            <span>发布/删除课程</span>
                         </Menu.Item>
                         <Menu.Item key="4">
+                            <Icon type="switcher" />
+                            <span>查看学生选课信息</span>
+                        </Menu.Item>
+                        <Menu.Item key="5">
                             <Icon type="export" />
                             <span>发布考试信息</span>
                         </Menu.Item>
-                        <Menu.Item key="5">
+                        <Menu.Item key="6">
                             <Icon type="switcher" />
                             <span>发布成绩</span>
                         </Menu.Item>
-                        <Menu.Item key="6">
+                        <Menu.Item key="7">
                             <Icon type="line-chart" />
                             <span>查看教学质量评价</span>
                         </Menu.Item>
-                        <Menu.Item key="7">
+                        <Menu.Item key="8">
                             <Icon type="logout" />
                             <span>退出登录</span>
                         </Menu.Item>

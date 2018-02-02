@@ -61,6 +61,7 @@ const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
 const GET_STUDENTS_SELECT_COURSES_INFO = 'GET_STUDENTS_SELECT_COURSES_INFO';
 const GET_EXAM_INFO = 'GET_EXAM_INFO';
 const GET_SCORE_INFO = 'GET_SCORE_INFO';
+const GET_ASSESSMENT_INFO = 'GET_ASSESSMENT_INFO';
 const ADD_COURSES_INFO = 'ADD_COURSES_INFO';
 const DELETE_COURSES_INFO = 'DELETE_COURSES_INFO';
 const TEACHER_EDIT_EXAM_INFO = 'TEACHER_EDIT_EXAM_INFO';
@@ -88,6 +89,7 @@ export default function (state, action) {
             getStudentsSelectCoursesInfo: [],
             getExamInfo: [],
             getScoreInfo: [],
+            getAssementInfo: [],
         }
     }
     switch (action.type) {
@@ -188,6 +190,8 @@ export default function (state, action) {
             return { ...state, getExamInfo: action.data}
         case GET_SCORE_INFO:
             return { ...state, getScoreInfo: action.data}
+        case GET_ASSESSMENT_INFO:
+            return { ...state, getAssementInfo: action.data}
         case ADD_COURSES_INFO:
             tempData = [...state.getReleaseCoursesInfo]
             tempData.unshift(action.data)
@@ -834,6 +838,10 @@ function getScoreInfoSucc(data) {
     return { type: GET_SCORE_INFO, data }
 }
 
+function getAssessmentInfoSucc(data) {
+    return { type: GET_ASSESSMENT_INFO, data }
+}
+
 function getTeacherGetInfo(identityType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -846,6 +854,8 @@ function getTeacherGetInfo(identityType) {
             path = 'getExamsInfo'
         } else if(identityType === 'getStudentsScoreInfo') {
             path = 'getStudentsScoreInfo'
+        } else if(identityType === 'getAssessmentInfo') {
+            path = 'getAssessmentInfo'
         }
         $.ajax({
             url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
@@ -869,6 +879,8 @@ function getTeacherGetInfo(identityType) {
                         dispatch(getExamsInfoSucc(response.data))
                     } else if(identityType === 'getStudentsScoreInfo') {
                         dispatch(getScoreInfoSucc(response.data))
+                    } else if(identityType === 'getAssessmentInfo') {
+                        dispatch(getAssessmentInfoSucc(response.data))
                     }
                 }
             }

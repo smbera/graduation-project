@@ -260,6 +260,64 @@ router.get("/getExamsInfo", function(req, res, next) {
     }).catch(next);
 });
 
+router.get("/getAssessmentInfo", function(req, res, next) {
+    teachersInfo.findOne({
+        where: {
+            id: req.query.teacherId,
+            password: req.query.teacherPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
+            })
+        } else {
+            studentsTeachers.findAll({
+                attributes: ['score', 'content', 'courseId'],
+                where: {
+                    teachers_info_id: req.query.teacherId
+                }
+            }).then(function(result) {
+                if(result.length == 0) {
+                    res.json({
+                        code: code.NO_RELEASE_COURSES,
+                        msg: msg.NO_RELEASE_COURSES
+                    })
+                } else {
+                    var tempArr = result;
+                    var coursesIdArr = [];
+                    result.forEach(function(item) {
+                        coursesIdArr.push(item.courseId)
+                    })
+
+                    coursesInfo.findAll({
+                        attributes: ['id', 'name'],
+                        where: {
+                            id: {
+                                [Sequelize.Op.in]: coursesIdArr
+                            }
+                        }
+                    }).then(function(result) {
+                        for(var i = 0; i < tempArr.length; i++) {
+                            for(var j = 0; j < result.length; j++) {
+                                if(tempArr[i].courseId == result[j].id) {
+                                    tempArr[i].dataValues.courseName = result[j].name
+                                }
+                            }
+                        }
+                        res.json({
+                            code: code.GET_INFO_SUCC,
+                            msg: msg.GET_INFO_SUCC,
+                            data: tempArr
+                        })
+                    })
+                }
+            })
+        }
+    }).catch(next);
+});
+
 router.post("/updateExamsInfo", function(req, res, next) {
     teachersInfo.findOne({
         where: {
