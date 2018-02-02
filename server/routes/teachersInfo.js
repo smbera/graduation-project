@@ -128,8 +128,8 @@ router.get("/getStudentsScoreInfo", function(req, res, next) {
     }).then(function(result) {
         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
             coursesInfo.findAll({
@@ -144,13 +144,44 @@ router.get("/getStudentsScoreInfo", function(req, res, next) {
             }).then(function(result) {
                 if(result.length == 0) {
                     res.json({
-                        code: 1,
-                        msg: '你还没有发布任何课程'
+                        code: code.NO_RELEASE_COURSES,
+                        msg: msg.NO_RELEASE_COURSES
                     })
                 } else {
+                    var tempArr = [];
+                    for(var i = 0; i < result.length; i++) {
+                        if(result[i].studentsInfos.length != 0) {
+                            for(var j = 0; j < result[i].studentsInfos.length; j++ ) {
+                                tempArr.push({
+                                    coursesid: result[i].id ,
+                                    coursesname: result[i].name,
+                                    coursesgrade: result[i].grade,
+                                    coursesmajorId: result[i].majorId,
+                                    coursesmajorName: result[i].majorName,
+                                    studentId: result[i].studentsInfos[j].id,
+                                    studentName: result[i].studentsInfos[j].name,
+                                    studentGender: result[i].studentsInfos[j].gender,
+                                    studentGrade: result[i].studentsInfos[j].grade,
+                                    studentClass: result[i].studentsInfos[j].class,
+                                    studentMajorId: result[i].studentsInfos[j].majorId,
+                                    studentMajorName: result[i].studentsInfos[j].majorName,
+                                    studentScore: result[i].studentsInfos[j].studentsCourses.score,
+                                })
+                            }
+                        } else {
+                            tempArr.push({
+                                coursesid: result[i].id ,
+                                coursesname: result[i].name,
+                                coursesgrade: result[i].grade,
+                                coursesmajorId: result[i].majorId,
+                                coursesmajorName: result[i].majorName,
+                            })
+                        }
+                    }
                 	res.json({
-                        code: 1,
-                        data: result
+                        code: code.GET_INFO_SUCC,
+                        msg: msg.GET_INFO_SUCC,
+                        data: tempArr
                     })
                 }
             })
@@ -165,26 +196,29 @@ router.post("/updateStudentsScoreInfo", function(req, res, next) {
             password: req.body.teacherPsw
         }
     }).then(function(result) {
-        if(result == null) {
+         if(result == null) {
             res.json({
-                code: 001,
-                msg: '用户不存在'
+                code: code.USER_NO_EXIST,
+                msg: msg.USER_NO_EXIST
             })
         } else {
-            var updateStudentsScoreInfoArr = eval(req.body.updateStudentsScoreInfo);
-            updateStudentsScoreInfoArr.forEach(function(item){
-                studentsCourses.update({
-                    score: item.score
-                }, {
-                    where: {
-                        courses_info_id: item.courseId,
-                        students_info_id: item.studentId
-                    }
-                })
-            })
-            res.json({
-                status: 1,
-                msg: 'updateStudentsScoreInfoArr success'
+            studentsCourses.update(req.body, {
+                where: {
+                    students_info_id: req.body.studentId,
+                    courses_info_id: req.body.courseId
+                }
+            }).then(function(result) {
+                if(result[0] == 0) {
+                    res.json({
+                        code: code.RELEASE_SCORE_INFO_FAILE,
+                        msg: msg.RELEASE_SCORE_INFO_FAILE
+                    })
+                } else {
+                    res.json({
+                        code: code.RELEASE_SCORE_INFO_SUCC,
+                        msg: msg.RELEASE_SCORE_INFO_SUCC
+                    })
+                }
             })
         }
     }).catch(next);

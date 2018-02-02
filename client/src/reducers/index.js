@@ -60,11 +60,15 @@ const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
 const GET_STUDENTS_SELECT_COURSES_INFO = 'GET_STUDENTS_SELECT_COURSES_INFO';
 const GET_EXAM_INFO = 'GET_EXAM_INFO';
+const GET_SCORE_INFO = 'GET_SCORE_INFO';
 const ADD_COURSES_INFO = 'ADD_COURSES_INFO';
 const DELETE_COURSES_INFO = 'DELETE_COURSES_INFO';
 const TEACHER_EDIT_EXAM_INFO = 'TEACHER_EDIT_EXAM_INFO';
 const TEACHER_CHANGE_EXAM_INFO = 'TEACHER_CHANGE_EXAM_INFO';
 const UPDATE_EXAMS_INFO_SUCC = 'UPDATE_EXAMS_INFO_SUCC';
+const TEACHER_EDIT_SCORE_INFO = 'TEACHER_EDIT_SCORE_INFO';
+const TEACHER_CHANGE_SCORE_INFO = 'TEACHER_CHANGE_SCORE_INFO';
+const UPDATE_SCORE_INFO_SUCC = 'UPDATE_SCORE_INFO_SUCC';
 
 // reducer
 export default function (state, action) {
@@ -83,6 +87,7 @@ export default function (state, action) {
             getReleaseCoursesInfo: [],
             getStudentsSelectCoursesInfo: [],
             getExamInfo: [],
+            getScoreInfo: [],
         }
     }
     switch (action.type) {
@@ -181,6 +186,8 @@ export default function (state, action) {
             return { ...state, getStudentsSelectCoursesInfo: action.data}
         case GET_EXAM_INFO:
             return { ...state, getExamInfo: action.data}
+        case GET_SCORE_INFO:
+            return { ...state, getScoreInfo: action.data}
         case ADD_COURSES_INFO:
             tempData = [...state.getReleaseCoursesInfo]
             tempData.unshift(action.data)
@@ -204,6 +211,21 @@ export default function (state, action) {
             target = tempData.filter(item => action.id === item.id)[0];
             delete target.editable;
             return { ...state, getExamInfo: tempData }
+        case TEACHER_EDIT_SCORE_INFO:
+            tempData = [...state.getScoreInfo]
+            target = tempData.filter(item => action.id === item.studentId)[0];
+            target.editable = true;
+            return { ...state, getScoreInfo: tempData }
+        case TEACHER_CHANGE_SCORE_INFO:
+            tempData = [...state.getScoreInfo]
+            target = tempData.filter(item => action.id === item.studentId)[0];
+            target[action.column] = action.value;
+            return { ...state, getScoreInfo: tempData }
+        case UPDATE_SCORE_INFO_SUCC:
+            tempData = [...state.getScoreInfo]
+            target = tempData.filter(item => action.id === item.studentId)[0];
+            delete target.editable;
+            return { ...state, getScoreInfo: tempData }
         default:
             return state
     }
@@ -808,6 +830,10 @@ function getExamsInfoSucc(data) {
     return { type: GET_EXAM_INFO, data }
 }
 
+function getScoreInfoSucc(data) {
+    return { type: GET_SCORE_INFO, data }
+}
+
 function getTeacherGetInfo(identityType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -818,6 +844,8 @@ function getTeacherGetInfo(identityType) {
             path = 'getStudentsSelectCoursesInfo'
         } else if(identityType === 'getExamsInfo') {
             path = 'getExamsInfo'
+        } else if(identityType === 'getStudentsScoreInfo') {
+            path = 'getStudentsScoreInfo'
         }
         $.ajax({
             url:`${SERVER_PATH}/${TEACHERS_INFO}/${path}`,
@@ -839,6 +867,8 @@ function getTeacherGetInfo(identityType) {
                         dispatch(StudentsSelectCoursesInfoSucc(response.data))
                     } else if(identityType === 'getExamsInfo') {
                         dispatch(getExamsInfoSucc(response.data))
+                    } else if(identityType === 'getStudentsScoreInfo') {
+                        dispatch(getScoreInfoSucc(response.data))
                     }
                 }
             }
@@ -862,6 +892,10 @@ function deleteCoursesSucc(id) {
 
 function updateExamsInfoSucc(id) {
     return { type: UPDATE_EXAMS_INFO_SUCC, id }
+}
+
+function updateStudentsScoreInfoSucc(id) {
+    return { type: UPDATE_SCORE_INFO_SUCC, id }
 }
 
 function postTeacherPostInfo(identityType, obj) {
@@ -902,6 +936,15 @@ function postTeacherPostInfo(identityType, obj) {
                 'examAddress': obj.examAddress
             }
             path = 'updateExamsInfo';
+        } else if(identityType === 'updateStudentsScoreInfo') {
+            tempObj = {
+                'teacherId': userInfo.userName,
+                'teacherPsw': userInfo.password,
+                'courseId': obj.coursesid,
+                'studentId': obj.studentId,
+                'score': obj.studentScore
+            }
+            path = 'updateStudentsScoreInfo';
         }
 
         $.ajax({
@@ -912,10 +955,11 @@ function postTeacherPostInfo(identityType, obj) {
             success: function (response) {
                 let msg = response.msg;
                 if(response.code === status.USER_NO_EXIST || response.code === status.RELEASE_COURSES_FAILE 
-                    || response.code === status.DELETE_RELEASE_COURSES_FAILE || response.code === status.RELEASE_EXAM_INFO_FAILE) {
+                    || response.code === status.DELETE_RELEASE_COURSES_FAILE || response.code === status.RELEASE_EXAM_INFO_FAILE
+                    || response.code === status.RELEASE_SCORE_INFO_FAILE) {
                     message.error(msg);
                 } else if(response.code === status.RELEASE_COURSES_SUCC || response.code === status.DELETE_RELEASE_COURSES_SUCC
-                    || response.code === status.RELEASE_EXAM_INFO_SUCC) {
+                    || response.code === status.RELEASE_EXAM_INFO_SUCC || response.code === status.RELEASE_SCORE_INFO_SUCC) {
                     message.success(msg); 
                     if(identityType === 'addCourses') {
                         dispatch(addCoursesSucc(response.data))
@@ -923,6 +967,8 @@ function postTeacherPostInfo(identityType, obj) {
                         dispatch(deleteCoursesSucc(obj))
                     } else if(identityType === 'updateExamsInfo') {
                         dispatch(updateExamsInfoSucc(obj.id))
+                    } else if(identityType === 'updateStudentsScoreInfo') {
+                        dispatch(updateStudentsScoreInfoSucc(obj.studentId))
                     }
                 }
             }
@@ -942,4 +988,12 @@ export const teacherEditExamInfo = (id) => {
 
 export const teacherChangeExamInfo = (value, id, column) => {
     return {type: TEACHER_CHANGE_EXAM_INFO, value, id, column}
+}
+
+export const teacherEditScoreInfo = (id) => {
+    return {type: TEACHER_EDIT_SCORE_INFO, id}
+}
+
+export const teacherChangeScoreInfo = (value, id, column) => {
+    return {type: TEACHER_CHANGE_SCORE_INFO, value, id, column}
 }

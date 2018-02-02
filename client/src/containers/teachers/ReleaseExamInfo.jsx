@@ -10,17 +10,17 @@ class ReleaseExamInfo extends Component {
         this.columns = [{
             title: '课程号',
             dataIndex: 'id',
-            width: '8%',
+            width: '14%',
             render: (text) => <div>{text}</div>
         }, {
             title: '课程名称',
             dataIndex: 'name',
-            width: '10%',
+            width: '20%',
             render: (text) => <div>{text}</div>
         }, {
             title: '考试时间',
             dataIndex: 'examTime',
-            width: '10%',
+            width: '28%',
             render: (text, record) => this.renderColumns(text, record, 'examTime'),
         }, {
             title: '考试地点',
