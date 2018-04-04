@@ -55,6 +55,7 @@ const STUDENT_GET_EXAMS = 'STUDENT_GET_EXAMS';
 const STUDENT_GET_SCORE = 'STUDENT_GET_SCORE';
 const STUDENT_GET_TEACHERS_ASSESSMENT = 'STUDENT_GET_TEACHERS_ASSESSMENT';
 const STUDENT_GET_IS_CAN_ADD_ASSESSMENT = 'STUDENT_GET_IS_CAN_ADD_ASSESSMENT';
+const STUDENT_GET_IS_CAN_SELECT_COURSES = 'STUDENT_GET_IS_CAN_SELECT_COURSES';
 const STUDENT_SELECT_COURSES = 'STUDENT_SELECT_COURSES';
 const STUDENT_DELETE_SELECT_COURSES = 'STUDENT_DELETE_SELECT_COURSES';
 const GET_RELEASE_COURSES_INFO = 'GET_RELEASE_COURSES_INFO';
@@ -85,6 +86,7 @@ export default function (state, action) {
             studentGetScoreInfo: [],
             studentGetTeachersAssessmentInfo: [],
             isCanAddAssessment: false,
+            isCanSelectCourses: false,
             getReleaseCoursesInfo: [],
             getStudentsSelectCoursesInfo: [],
             getExamInfo: [],
@@ -174,6 +176,8 @@ export default function (state, action) {
             return { ...state, studentGetTeachersAssessmentInfo: action.data }
         case STUDENT_GET_IS_CAN_ADD_ASSESSMENT:
             return { ...state, isCanAddAssessment: action.flag }
+        case STUDENT_GET_IS_CAN_SELECT_COURSES:
+            return { ...state, isCanSelectCourses: action.flag }
         case STUDENT_SELECT_COURSES:
             tempData = [...state.studentGetAllCoursesInfo]
             target = tempData.filter(item => action.id === item.id)[0];
@@ -684,6 +688,14 @@ function studentGetIsCanAddAssessment() {
     return { type: STUDENT_GET_IS_CAN_ADD_ASSESSMENT, flag: true }
 }
 
+function studentGetIsCanNotSelectCourses() {
+    return { type: STUDENT_GET_IS_CAN_SELECT_COURSES, flag: false }
+}
+
+function studentGetIsCanSelectCourses() {
+    return { type: STUDENT_GET_IS_CAN_SELECT_COURSES, flag: true }
+}
+
 function getStudentGetCoursesInfo(functionType) {
     return function (dispatch) {
         let userInfo = getUserInfoFromCookie();
@@ -700,6 +712,8 @@ function getStudentGetCoursesInfo(functionType) {
             path = 'getTeachersAssessmentInfo'
         } else if(functionType === 'getIsCanAddAssessment') {
             path = 'getIsCanAddAssessment'
+        } else if(functionType === 'getIsCanSelectCourses') {
+            path = 'getIsCanSelectCourses'
         }
 
         $.ajax({
@@ -716,14 +730,18 @@ function getStudentGetCoursesInfo(functionType) {
                     || response.code === status.NO_ACCESS_GET_EXAM_INFO || response.code === status.NO_EXAM_INFO_FOR_NO_SELECT_COURSES 
                     || response.code === status.NO_EXAM_INFO || response.code === status.NO_ACCESS_GET_SCORE_INFO 
                     || response.code === status.NO_SCORE_INFO_FOR_NO_SELECT_COURSES || response.code === status.NO_ACCESS_GET_TEACHERS_ASSESSMENT_INFO 
-                    || response.code === status.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES || response.code === status.CAN_NOT_ADD_ASSESSMENT_INFO) {
+                    || response.code === status.NO_TEACHERS_ASSESSMENT_INFO_FOR_NO_SELECT_COURSES || response.code === status.CAN_NOT_ADD_ASSESSMENT_INFO
+                    || response.code === status.NO_ACCESS_SELECT_COURSE_INFO || response.code === status.CAN_NOT_SELECT_COURSE) {
                     message.error(msg);
                     if(functionType === 'getIsCanAddAssessment') {
                         dispatch(studentGetIsCanNotAddAssessment())
                     }
+                    if(functionType === 'getIsCanSelectCourses') {
+                        dispatch(studentGetIsCanNotSelectCourses())
+                    }
                 } else if(response.code === status.GET_CAN_SELECT_SUCC || response.code === status.GET_EXAM_INFO_SUCC 
                     || response.code === status.GET_SCORE_INFO_SUCC || response.code === status.GET_TEACHERS_ASSESSMENT_INFO_SUCC
-                    || response.code === status.CAN_ADD_ASSESSMENT_INFO) {
+                    || response.code === status.CAN_ADD_ASSESSMENT_INFO || response.code === status.CAN_SELECT_COURSE) {
                     message.success(msg);
                     if(functionType === 'getAllCoursesInfo') {
                         dispatch(studentGetAllCoursesInfoSucc(response.data))
@@ -737,6 +755,8 @@ function getStudentGetCoursesInfo(functionType) {
                         dispatch(studentGetTeachersAssessmentInfo(response.data))
                     } else if(functionType === 'getIsCanAddAssessment') {
                         dispatch(studentGetIsCanAddAssessment())
+                    } else if(functionType === 'getIsCanSelectCourses') {
+                        dispatch(studentGetIsCanSelectCourses())
                     }
                 }
             }

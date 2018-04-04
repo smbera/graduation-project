@@ -86,6 +86,24 @@ class StudentsIndex extends Component {
             }
         }
 
+        let meunList1 = () => {
+            if(this.props.isCanSelectCourses === true) {
+                return (
+                    <Menu.Item key="3">
+                        <Icon type="book" />
+                        <span>选择课程</span>
+                    </Menu.Item>
+                    )
+            } else {
+                return (
+                    <Menu.Item key="3" disabled>
+                        <Icon type="book" />
+                        <span>选择课程</span>
+                    </Menu.Item>
+                    )
+            }
+        }
+
         return (
             <Layout>
                 <Sider
@@ -103,10 +121,9 @@ class StudentsIndex extends Component {
                             <Icon type="bar-chart" />
                             <span>个人信息</span>
                         </Menu.Item>
-                        <Menu.Item key="3">
-                            <Icon type="book" />
-                            <span>选择课程</span>
-                        </Menu.Item>
+                        {
+                            meunList1()
+                        }
                         <Menu.Item key="4">
                             <Icon type="switcher" />
                             <span>我的课程</span>
@@ -154,17 +171,22 @@ class StudentsIndex extends Component {
         if(this.props.onStudentGetCoursesInfo) {
             this.props.onStudentGetCoursesInfo('getIsCanAddAssessment');
         }
+        if(this.props.onStudentGetCoursesInfo) {
+            this.props.onStudentGetCoursesInfo('getIsCanSelectCourses');
+        }
     }
 }
 
 StudentsIndex.propTypes = { 
     isCanAddAssessment: PropTypes.bool,
+    isCanSelectCourses: PropTypes.bool,
     onStudentGetCoursesInfo: PropTypes.func,
 } 
 
 const mapStateToProps = (state) => {
     return {
         isCanAddAssessment: state.isCanAddAssessment,
+        isCanSelectCourses: state.isCanSelectCourses,
     }
 }
 
