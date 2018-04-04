@@ -413,6 +413,48 @@ router.get("/getIsCanAddAssessment", function(req, res, next) {
     }).catch(next);
 });
 
+router.get("/getIsCanSelectCourses", function(req, res, next) {
+    studentsInfo.findOne({
+        where: {
+            id: req.query.studentId,
+            password: req.query.studentPsw
+        }
+    }).then(function(result) {
+        if(result == null) {
+            res.json({
+                code: code.NO_ACCESS_SELECT_COURSE_INFO,
+                msg: msg.NO_ACCESS_SELECT_COURSE_INFO
+            })
+        } else {
+            studentsCourses.findOne({
+                attributes: ['isOpen'],
+                where: {
+                    students_info_id: req.query.studentId
+                }
+            }).then(function(result) {
+                if(result == null) {
+                    res.json({
+                        code: 567567567,
+                        msg: 'test'
+                    })
+                } else {
+                    if(result.isOpen == 'false') {
+                        res.json({
+                            code: code.CAN_NOT_SELECT_COURSE,
+                            msg: msg.CAN_NOT_SELECT_COURSE
+                        })
+                    } else if(result.isOpen == 'true') {
+                        res.json({
+                            code: code.CAN_SELECT_COURSE,
+                            msg: msg.CAN_SELECT_COURSE
+                        })
+                    }
+                }
+            })
+        }
+    }).catch(next);
+});
+
 router.post("/signIn", function(req, res, next) {
     common.signIn(req, res, next, studentsInfo)
 });

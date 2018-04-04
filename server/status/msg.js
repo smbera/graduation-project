@@ -55,6 +55,9 @@ var msg = {
 	RELEASE_EXAM_INFO_SUCC: '发布考试信息成功',
 	RELEASE_SCORE_INFO_FAILE: '发布成绩信息失败',
 	RELEASE_SCORE_INFO_SUCC: '发布成绩信息成功',
+	NO_ACCESS_SELECT_COURSE_INFO: '无权限选择课程，请重新登录后再操作',
+	CAN_SELECT_COURSE: '现在是选课时间',
+	CAN_NOT_SELECT_COURSE: '现在还不是选课时间',
 }
 
 module.exports = msg;
