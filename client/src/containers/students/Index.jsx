@@ -117,10 +117,6 @@ class StudentsIndex extends Component {
                             <Icon type="setting" />
                             <span>修改密码</span>
                         </Menu.Item>
-                        <Menu.Item key="2">
-                            <Icon type="bar-chart" />
-                            <span>个人信息</span>
-                        </Menu.Item>
                         {
                             meunList1()
                         }

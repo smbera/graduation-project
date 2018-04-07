@@ -73,10 +73,6 @@ class TeachersIndex extends Component {
                             <Icon type="setting" />
                             <span>修改密码</span>
                         </Menu.Item>
-                        <Menu.Item key="2">
-                            <Icon type="bar-chart" />
-                            <span>个人信息</span>
-                        </Menu.Item>
                         <Menu.Item key="3">
                             <Icon type="book" />
                             <span>发布/删除课程</span>
